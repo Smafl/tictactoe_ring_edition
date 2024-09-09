@@ -1,0 +1,85 @@
+*, *::after, *::before {
+	box-sizing: border-box;
+}
+
+:root {
+	--cell-size: 100px;
+}
+
+body {
+	margin: 0;
+}
+
+/*	BOARD	*/
+.board {
+	display: flex;
+	border: 2px solid gray;
+	align-content: center;
+	justify-content: center;
+}
+
+.side {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	border: 2px solid red;
+}
+
+.grid {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	align-content: center;
+	justify-content: center;
+	grid-template-columns: var(--cell-size) var(--cell-size) var(--cell-size);
+	grid-template-rows: var(--cell-size) var(--cell-size) var(--cell-size);
+	border: 2px solid green;
+}
+
+.cell {
+	position: relative;
+	width: var(--cell-size);
+	height: var(--cell-size);
+	cursor: pointer;
+}
+
+.cell.template {
+	display: none;
+}
+
+/*	RINGS	*/
+.cell .ring:nth-child(1) {
+	--index: 1;
+	--offset: calc(var(--cell-size) / 8 * var(--index));
+	width: calc(100% - var(--offset) * 2);
+	height: calc(100% - var(--offset) * 2);
+	top: var(--offset);
+	left: var(--offset);
+	border-radius: 50%;
+	border: 2px solid red;
+	position: absolute;
+}
+
+.cell .ring:nth-child(2) {
+	--index: 2;
+	--offset: calc(var(--cell-size) / 8 * var(--index));
+	width: calc(100% - var(--offset) * 2);
+	height: calc(100% - var(--offset) * 2);
+	top: var(--offset);
+	left: var(--offset);
+	border-radius: 50%;
+	border: 2px solid red;
+	position: absolute;
+}
+
+.cell .ring:nth-child(3) {
+	--index: 3;
+	--offset: calc(var(--cell-size) / 8 * var(--index));
+	width: calc(100% - var(--offset) * 2);
+	height: calc(100% - var(--offset) * 2);
+	top: var(--offset);
+	left: var(--offset);
+	border-radius: 50%;
+	border: 2px solid red;
+	position: absolute;
+}
