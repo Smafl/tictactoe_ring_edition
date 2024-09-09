@@ -8,6 +8,8 @@ class RingTicTacToe {
 		this.grid = document.querySelector('.grid');
 
 		this.cloneElements();
+		this.startGame();
+		this.restartButton.addEventListener('click', () => this.startGame());
 	}
 
 	cloneElements() {
@@ -26,6 +28,10 @@ class RingTicTacToe {
 			clone.classList.remove('template');
 			this.grid.appendChild(clone);
 		}
+	}
+
+	startGame() {
+
 	}
 }
 
