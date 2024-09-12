@@ -98,10 +98,10 @@ body {
 	border: 4px solid darkslateblue;
 }
 
-.ring[selected] {
+.ring.selected {
 	border: 4px solid lime;
 }
 
-.ring[used] {
+.ring.used {
 	border: 4px solid gainsboro;
 }

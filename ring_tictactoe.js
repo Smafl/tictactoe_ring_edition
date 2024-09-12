@@ -78,7 +78,7 @@ class TicTacToeModel {
 
 	containsNan(index) {
 		for (let i = 0; i != index.length; i++) {
-			if (index[i] === NaN) {
+			if (isNaN(index[i])) {
 				return true;
 			}
 		}
@@ -154,14 +154,14 @@ class TicTacToeView {
 			rings.forEach((ring, i) => {
 				const ringStatus = cellData[i];
 				if (ringStatus === 'used') {
-					ring.setAttribute('used', '');
-					ring.removeAttribute('selected');
+					ring.classList.add('used');
+					ring.classList.remove('selected');
 				} else if (ringStatus === 'selected') {
-					ring.setAttribute('selected', '');
-					ring.removeAttribute('used');
+					ring.classList.add('selected');
+					ring.classList.remove('used');
 				} else {
-					ring.removeAttribute('used');
-					ring.removeAttribute('selected');
+					ring.classList.remove('used');
+					ring.classList.remove('selected');
 				}
 			});
 		});
