@@ -13,8 +13,6 @@ class TicTacToeModel {
 		this.redSide = [];
 		this.blueSide = [];
 		this.board = [];
-		this.sides = [this.redSide, this.blueSide];
-		this.allSets = [this.redSide, this.board, this.blueSide];
 
 		this.initBoard();
 	}
@@ -148,8 +146,25 @@ class TicTacToeView {
 		});
 	}
 
-	renderModel(allSets) {
-
+	renderModel(redSide) {
+		const cells = this.redGrid.querySelectorAll('.cell[data-color="0"]');
+		cells.forEach((cell, index) => {
+			const rings = cell.querySelectorAll('.ring');
+			const cellData = redSide[index];
+			rings.forEach((ring, i) => {
+				const ringStatus = cellData[i];
+				if (ringStatus === 'used') {
+					ring.setAttribute('used', '');
+					ring.removeAttribute('selected');
+				} else if (ringStatus === 'selected') {
+					ring.setAttribute('selected', '');
+					ring.removeAttribute('used');
+				} else {
+					ring.removeAttribute('used');
+					ring.removeAttribute('selected');
+				}
+			});
+		});
 	}
 }
 
@@ -166,7 +181,7 @@ class TicTacToeController {
 
 	handleRedSideClick = index => {
 		if (this.model.redSideAction(index)) {
-			this.view.renderModel(this.model.allSets);
+			this.view.renderModel(this.model.redSide);
 		}
 	}
 }
