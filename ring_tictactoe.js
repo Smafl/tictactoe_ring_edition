@@ -48,10 +48,14 @@ class TicTacToeModel {
 		}
 		if (this.upd.isSelected === true) {
 			if (this.upd.cell != index[1]) {
-				console.log('wrong cell');
-				return false;
+				const i = this.redSide[this.upd.cell].indexOf('selected');
+				if (i != -1) {
+					this.redSide[this.upd.cell][i] = null;
+					this.upd.isSelected = false;
+				}
 			}
 		}
+
 		for (let i = 0; i != 3; i++) {
 			if (this.redSide[index[1]][i] == 'used') {
 				continue;
