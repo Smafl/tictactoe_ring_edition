@@ -105,3 +105,11 @@ body {
 .ring.used {
 	border: 4px solid gainsboro;
 }
+
+.ring.red {
+	border: 4px solid fuchsia;
+}
+
+.ring.blue {
+	border: 4px solid darkslateblue;
+}

@@ -8,11 +8,10 @@ class TicTacToeModel {
 		this.upd = {
 			turn: 2,
 			cell: null,
-			isSelected: false
+			isSelected: false,
+			ringSize: null
 		};
-		this.redSide = [];
-		this.blueSide = [];
-		this.sides = [this.redSide,this.blueSide];
+		this.sides = [[], []];
 		this.board = [];
 
 		this.initBoard();
@@ -22,6 +21,7 @@ class TicTacToeModel {
 		console.log('log ', log, '; turn: ', this.upd.turn);
 		console.log('log ', log, '; cell: ', this.upd.cell);
 		console.log('log ', log, '; is selected: ', this.upd.isSelected);
+		console.log('log ', log, '; ring size: ', this.upd.ringSize);
 	}
 
 	initBoard() {
@@ -32,17 +32,16 @@ class TicTacToeModel {
 
 		// null (ring placed), selected, used
 		for (let i = 0; i != 2; i++) {
-			this.redSide.push([null, null, null]);
-			this.blueSide.push([null, null, null]);
+			this.sides[i].push([null, null, null], [null, null, null]);
 		}
 	}
 
-	SideAction(index) {
+	selectRing(index) {
 		if (this.containsNan(index)) {
 			console.error('index contains Nan');
 			return false;
 		}
-		this.printUpd(1)
+		// this.printUpd(1)
 		if (this.upd.turn != index[0] && this.upd.turn != 2) {
 			console.log('turn is wrong');
 			return false;
@@ -57,38 +56,63 @@ class TicTacToeModel {
 			}
 		}
 
-		for (let i = 0; i != 3; i++) {
-			if (this.sides[index[0]][index[1]][i] == 'used') {
+		for (let ring = 0; ring != 3; ring++) {
+			if (this.sides[index[0]][index[1]][ring] == 'used') {
 				continue;
 			}
-			if (this.sides[index[0]][index[1]][i] == 'selected') {
-				this.sides[index[0]][index[1]][i] = null;
+			if (this.sides[index[0]][index[1]][ring] == 'selected') {
+				this.sides[index[0]][index[1]][ring] = null;
 				this.upd.isSelected = false;
+				this.upd.ringSize = null;
 				continue;
 			}
 			if (this.upd.isSelected == false) {
-
-				this.sides[index[0]][index[1]][i] = 'selected';
+				this.sides[index[0]][index[1]][ring] = 'selected';
 				this.upd.turn = index[0];
 				this.upd.cell = index[1];
 				this.upd.isSelected = true;
-				console.log('selected: ', i);
+				this.upd.ringSize = ring;
+				console.log('selected: ', ring);
 				break;
 			}
 		}
 		this.printUpd(2);
-		// console.log('redSide: ', this.redSide[index[1]]);
+		console.log('sides select: ', this.sides);
 		return true;
 	}
 
-	containsNan(index) {
-		for (let i = 0; i != index.length; i++) {
-			if (isNaN(index[i])) {
-				return true;
+	placeRing(index) {
+		if (isNaN(index)) {
+			return false;
+		}
+		for (let ring = 0; ring != 3; ring++) {
+			console.log(`ring size: ${this.upd.ringSize}, ring: ${ring}`);
+			if (this.upd.ringSize == ring) {
+				if (this.board[index][ring] == null) {
+					this.board[index][ring] = this.upd.turn;
+					this.sides[this.upd.turn][this.upd.cell][ring] = 'used';
+					console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
+					this.upd.turn = this.upd.turn ^ 1;
+					this.upd.isSelected = false;
+					this.upd.ringSize = null;
+					break;
+				}
 			}
 		}
-		return false;
+		// this.printUpd(3);
+		console.log('sides place: ', this.sides);
+		console.log('board: ', this.board);
+		return true;
 	}
+
+		containsNan(index) {
+			for (let i = 0; i != index.length; i++) {
+				if (isNaN(index[i])) {
+					return true;
+				}
+			}
+			return false;
+		}
 }
 
 class TicTacToeView {
@@ -132,27 +156,60 @@ class TicTacToeView {
 		}
 	}
 
-	bindRedSideClick(handler) {
+	bindBoardClick(handler) {
+		const cells = this.grid.querySelectorAll('.grid');
+		cells.forEach(cell => {
+			cell.addEventListener('click', event => {
+				let index = null;
+				const target = event.target;
+				const cell = target.closest('.cell');
+				if (cell.classList.contains('grid')) {
+					index = parseInt(cell.getAttribute('data-index'));
+					console.log('board index is: ', index);
+					handler(index);
+				} // else -> error ?
+			})
+		})
+	}
+
+	bindSideClick(handler) {
 		this.sides.forEach(side => {
 			side.querySelectorAll('.cell').forEach(cell => {
 				cell.addEventListener('click', event => {
 					const index = [];
-					console.log("in red side event");
 					const target = event.target;
 					const cell = target.closest('.cell');
 					if (cell.classList.contains('side')) {
 						index.push(parseInt(cell.getAttribute('data-color')));
 						index.push(parseInt(cell.getAttribute('data-index')));
-						console.log('indexes are: ', index);
+						console.log('side indexes are: ', index);
 						handler(index);
-					}
+					} // else -> error ?
 				});
 			});
 		});
 	}
 
-	renderModel(side, color) {
-		const cells = this.sides[color].querySelectorAll(`.cell[data-color="${color}"]`);
+	renderBoard(board, index) {
+		// console.log('INDEX ', index);
+		const cell = this.grid.querySelector(`.grid[data-index='${index}']`);
+		if (!cell) {
+			console.error('No board cell');
+			return;
+		}
+		const rings = cell.querySelectorAll('.ring');
+		rings.forEach((ring, i) => {
+			const ringStatus = board[index][i];
+			if (ringStatus == 0) {
+				ring.classList.add('red');
+			} else if (ringStatus == 1) {
+				ring.classList.add('blue');
+			}
+		});
+	}
+
+	renderSide(side, dataColor) {
+		const cells = this.sides[dataColor].querySelectorAll(`.cell[data-color="${dataColor}"]`);
 		cells.forEach((cell, index) => {
 			const rings = cell.querySelectorAll('.ring');
 			const cellData = side[index];
@@ -181,12 +238,21 @@ class TicTacToeController {
 		this.model = model;
 		this.view = view;
 
-		this.view.bindRedSideClick(this.handleRedSideClick);
+		this.view.bindSideClick(this.handleSideClick);
+		this.view.bindBoardClick(this.handleBoardClick);
 	}
 
-	handleRedSideClick = index => {
-		if (this.model.SideAction(index)) {
-			this.view.renderModel(this.model.sides[index[0]], index[0]);
+	handleSideClick = index => {
+		if (this.model.selectRing(index)) {
+			this.view.renderSide(this.model.sides[index[0]], index[0]);
+		}
+	}
+
+	handleBoardClick = index => {
+		if (this.model.placeRing(index)) {
+			this.view.renderBoard(this.model.board, index);
+			this.view.renderSide(this.model.sides[0], 0);
+			this.view.renderSide(this.model.sides[1], 1); // optimization needs
 		}
 	}
 }
