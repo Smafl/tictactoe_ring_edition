@@ -12,6 +12,7 @@ class TicTacToeModel {
 		};
 		this.redSide = [];
 		this.blueSide = [];
+		this.sides = [this.redSide,this.blueSide];
 		this.board = [];
 
 		this.initBoard();
@@ -36,7 +37,7 @@ class TicTacToeModel {
 		}
 	}
 
-	redSideAction(index) {
+	SideAction(index) {
 		if (this.containsNan(index)) {
 			console.error('index contains Nan');
 			return false;
@@ -48,26 +49,26 @@ class TicTacToeModel {
 		}
 		if (this.upd.isSelected === true) {
 			if (this.upd.cell != index[1]) {
-				const i = this.redSide[this.upd.cell].indexOf('selected');
+				const i = this.sides[index[0]][this.upd.cell].indexOf('selected');
 				if (i != -1) {
-					this.redSide[this.upd.cell][i] = null;
+					this.sides[index[0]][this.upd.cell][i] = null;
 					this.upd.isSelected = false;
 				}
 			}
 		}
 
 		for (let i = 0; i != 3; i++) {
-			if (this.redSide[index[1]][i] == 'used') {
+			if (this.sides[index[0]][index[1]][i] == 'used') {
 				continue;
 			}
-			if (this.redSide[index[1]][i] == 'selected') {
-				this.redSide[index[1]][i] = null;
+			if (this.sides[index[0]][index[1]][i] == 'selected') {
+				this.sides[index[0]][index[1]][i] = null;
 				this.upd.isSelected = false;
 				continue;
 			}
 			if (this.upd.isSelected == false) {
 
-				this.redSide[index[1]][i] = 'selected';
+				this.sides[index[0]][index[1]][i] = 'selected';
 				this.upd.turn = index[0];
 				this.upd.cell = index[1];
 				this.upd.isSelected = true;
@@ -76,7 +77,7 @@ class TicTacToeModel {
 			}
 		}
 		this.printUpd(2);
-		console.log('redSide: ', this.redSide[index[1]]);
+		// console.log('redSide: ', this.redSide[index[1]]);
 		return true;
 	}
 
@@ -150,11 +151,11 @@ class TicTacToeView {
 		});
 	}
 
-	renderModel(redSide) {
-		const cells = this.redGrid.querySelectorAll('.cell[data-color="0"]');
+	renderModel(side, color) {
+		const cells = this.sides[color].querySelectorAll(`.cell[data-color="${color}"]`);
 		cells.forEach((cell, index) => {
 			const rings = cell.querySelectorAll('.ring');
-			const cellData = redSide[index];
+			const cellData = side[index];
 			rings.forEach((ring, i) => {
 				const ringStatus = cellData[i];
 				if (ringStatus === 'used') {
@@ -184,8 +185,8 @@ class TicTacToeController {
 	}
 
 	handleRedSideClick = index => {
-		if (this.model.redSideAction(index)) {
-			this.view.renderModel(this.model.redSide);
+		if (this.model.SideAction(index)) {
+			this.view.renderModel(this.model.sides[index[0]], index[0]);
 		}
 	}
 }
