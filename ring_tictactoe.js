@@ -14,6 +14,10 @@ class TicTacToeModel {
 		this.sides = [[], []];
 		this.board = [];
 
+		this.winCombinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8],
+								[0, 3, 6], [1, 4, 7], [2, 5, 8],
+								[0, 4, 8], [2, 4, 6]];
+
 		this.initBoard();
 	}
 
@@ -34,6 +38,24 @@ class TicTacToeModel {
 		for (let i = 0; i != 2; i++) {
 			this.sides[i].push([null, null, null], [null, null, null]);
 		}
+	}
+
+	isCellWin(cell) {
+		let prevTurn = this.upd.turn ^ 1;
+		for (let i = 0; i !=3; i++) {
+			if (cell[i] == prevTurn) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	checkWin() {
+		return this.winCombinations.some(combnation => {
+			return combnation.every(index => {
+				return this.isCellWin(this.board[index]);
+			})
+		})
 	}
 
 	selectRing(index) {
@@ -76,8 +98,8 @@ class TicTacToeModel {
 				break;
 			}
 		}
-		this.printUpd(2);
-		console.log('sides select: ', this.sides);
+		// this.printUpd(2);
+		// console.log('sides select: ', this.sides);
 		return true;
 	}
 
@@ -85,13 +107,23 @@ class TicTacToeModel {
 		if (isNaN(index)) {
 			return false;
 		}
+		let isEmpty = this.board[index].indexOf(null);
+		if (isEmpty == -1) {
+			console.log('check');
+			return false;
+		}
 		for (let ring = 0; ring != 3; ring++) {
-			console.log(`ring size: ${this.upd.ringSize}, ring: ${ring}`);
+			if (this.board[index][ring] != null) {
+				if (this.upd.ringSize > ring) {
+					return false;
+				}
+			}
+			// console.log(`ring size: ${this.upd.ringSize}, ring: ${ring}`);
 			if (this.upd.ringSize == ring) {
 				if (this.board[index][ring] == null) {
 					this.board[index][ring] = this.upd.turn;
 					this.sides[this.upd.turn][this.upd.cell][ring] = 'used';
-					console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
+					// console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
 					this.upd.turn = this.upd.turn ^ 1;
 					this.upd.isSelected = false;
 					this.upd.ringSize = null;
@@ -100,19 +132,19 @@ class TicTacToeModel {
 			}
 		}
 		// this.printUpd(3);
-		console.log('sides place: ', this.sides);
-		console.log('board: ', this.board);
+		// console.log('sides place: ', this.sides);
+		// console.log('board: ', this.board);
 		return true;
 	}
 
-		containsNan(index) {
-			for (let i = 0; i != index.length; i++) {
-				if (isNaN(index[i])) {
-					return true;
-				}
+	containsNan(index) {
+		for (let i = 0; i != index.length; i++) {
+			if (isNaN(index[i])) {
+				return true;
 			}
-			return false;
 		}
+		return false;
+	}
 }
 
 class TicTacToeView {
@@ -165,7 +197,7 @@ class TicTacToeView {
 				const cell = target.closest('.cell');
 				if (cell.classList.contains('grid')) {
 					index = parseInt(cell.getAttribute('data-index'));
-					console.log('board index is: ', index);
+					// console.log('board index is: ', index);
 					handler(index);
 				} // else -> error ?
 			})
@@ -182,7 +214,7 @@ class TicTacToeView {
 					if (cell.classList.contains('side')) {
 						index.push(parseInt(cell.getAttribute('data-color')));
 						index.push(parseInt(cell.getAttribute('data-index')));
-						console.log('side indexes are: ', index);
+						// console.log('side indexes are: ', index);
 						handler(index);
 					} // else -> error ?
 				});
@@ -253,6 +285,9 @@ class TicTacToeController {
 			this.view.renderBoard(this.model.board, index);
 			this.view.renderSide(this.model.sides[0], 0);
 			this.view.renderSide(this.model.sides[1], 1); // optimization needs
+			if (this.model.checkWin()) {
+				console.log(`${(this.model.upd.turn ^ 1)} is winner`);
+			}
 		}
 	}
 }
