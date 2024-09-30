@@ -13,7 +13,7 @@ body {
 /*	BOARD	*/
 .board {
 	display: flex;
-	border: 2px solid gray;
+	/* border: 2px solid gray; */
 	align-content: center;
 	justify-content: center;
 }

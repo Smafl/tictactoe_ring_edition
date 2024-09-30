@@ -14,9 +14,8 @@ class TicTacToeModel {
 		this.sides = [[], []];
 		this.board = [];
 
-		this.winCombinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8],
-								[0, 3, 6], [1, 4, 7], [2, 5, 8],
-								[0, 4, 8], [2, 4, 6]];
+		this.winCombinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
+								[1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
 		this.initBoard();
 	}
@@ -29,7 +28,7 @@ class TicTacToeModel {
 	}
 
 	initBoard() {
-		// null (no setted ring), red, blue
+		// null (no setted ring), 0 (red), 1 (blue)
 		for (let i = 0; i != 9; i++) {
 			this.board.push([null, null, null]);
 		}
@@ -41,21 +40,60 @@ class TicTacToeModel {
 	}
 
 	isCellWin(cell) {
-		let prevTurn = this.upd.turn ^ 1;
 		for (let i = 0; i !=3; i++) {
-			if (cell[i] == prevTurn) {
+			if (cell[i] == this.upd.turn) {
+				// console.log(`cell is ${this.upd.turn}`);
 				return true;
+			} else if (cell[i] == (this.upd.turn ^ 1)) {
+				// console.log(`cell is ${this.upd.turn ^ 1}`);
+				return false;
 			}
 		}
 		return false;
 	}
 
-	checkWin() {
+	isWin() {
 		return this.winCombinations.some(combnation => {
 			return combnation.every(index => {
 				return this.isCellWin(this.board[index]);
 			})
 		})
+	}
+
+	canPlaceRing(boardCell, ringSize) {
+		for (let i = 0; i != 3; i++) {
+			if (this.board[boardCell][i] === null) {
+				return i === ringSize;
+			}
+			if (this.board[boardCell][i] !== null && i < ringSize) {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	isDraw() {
+		for (let i = 0; i != 9; i++) {
+			if (!this.board[i].includes(0) && !this.board[i].includes(1)) {
+				// console.log('There is still empty cell');
+				return false;
+			}
+		}
+
+		for (let cell = 0; cell != 2; cell++) {
+            for (let ring = 0; ring != 3; ring++) {
+                if (this.sides[this.upd.turn ^ 1][cell][ring] !== 'used') {
+                    for (let boardCell = 0; boardCell != 9; boardCell++) {
+                        if (this.canPlaceRing(boardCell, ring)) {
+							// console.log('Ring can be placed');
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+		// console.log('Should be a draw');
+		return true;
 	}
 
 	selectRing(index) {
@@ -94,7 +132,7 @@ class TicTacToeModel {
 				this.upd.cell = index[1];
 				this.upd.isSelected = true;
 				this.upd.ringSize = ring;
-				console.log('selected: ', ring);
+				// console.log('selected: ', ring);
 				break;
 			}
 		}
@@ -109,7 +147,6 @@ class TicTacToeModel {
 		}
 		let isEmpty = this.board[index].indexOf(null);
 		if (isEmpty == -1) {
-			console.log('check');
 			return false;
 		}
 		for (let ring = 0; ring != 3; ring++) {
@@ -124,7 +161,6 @@ class TicTacToeModel {
 					this.board[index][ring] = this.upd.turn;
 					this.sides[this.upd.turn][this.upd.cell][ring] = 'used';
 					// console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
-					this.upd.turn = this.upd.turn ^ 1;
 					this.upd.isSelected = false;
 					this.upd.ringSize = null;
 					break;
@@ -135,6 +171,10 @@ class TicTacToeModel {
 		// console.log('sides place: ', this.sides);
 		// console.log('board: ', this.board);
 		return true;
+	}
+
+	switchTurn() {
+		this.upd.turn = this.upd.turn ^ 1;
 	}
 
 	containsNan(index) {
@@ -285,8 +325,19 @@ class TicTacToeController {
 			this.view.renderBoard(this.model.board, index);
 			this.view.renderSide(this.model.sides[0], 0);
 			this.view.renderSide(this.model.sides[1], 1); // optimization needs
-			if (this.model.checkWin()) {
-				console.log(`${(this.model.upd.turn ^ 1)} is winner`);
+			if (!this.model.isWin()) {
+				if (this.model.isDraw()) {
+					console.log('It\'s a draw');
+				} else {
+					this.model.switchTurn();
+					// console.log('Turn was switched');
+				}
+			} else {
+				if (this.model.upd.turn == 0) {
+					console.log('red is winner');
+				} else {
+					console.log('blue is winner');
+				}
 			}
 		}
 	}
