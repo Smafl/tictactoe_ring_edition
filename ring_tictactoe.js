@@ -262,43 +262,43 @@ class TicTacToeView {
 		});
 	}
 
-	renderBoard(board, index) {
-		// console.log('INDEX ', index);
-		const cell = this.grid.querySelector(`.grid[data-index='${index}']`);
-		if (!cell) {
-			console.error('No board cell');
-			return;
-		}
-		const rings = cell.querySelectorAll('.ring');
-		rings.forEach((ring, i) => {
-			const ringStatus = board[index][i];
-			if (ringStatus == 0) {
-				ring.classList.add('red');
-			} else if (ringStatus == 1) {
-				ring.classList.add('blue');
-			}
-		});
-	}
-
-	renderSide(side, dataColor) {
-		const cells = this.sides[dataColor].querySelectorAll(`.cell[data-color="${dataColor}"]`);
+	renderBoard(board) {
+		const cells = this.grid.querySelectorAll('.grid');
 		cells.forEach((cell, index) => {
 			const rings = cell.querySelectorAll('.ring');
-			const cellData = side[index];
 			rings.forEach((ring, i) => {
-				const ringStatus = cellData[i];
-				if (ringStatus === 'used') {
-					ring.classList.add('used');
-					ring.classList.remove('selected');
-				} else if (ringStatus === 'selected') {
-					ring.classList.add('selected');
-					ring.classList.remove('used');
-				} else {
-					ring.classList.remove('used');
-					ring.classList.remove('selected');
+				const ringStatus = board[index][i];
+				// console.log('status ', ringStatus);
+				// ring.classList.remove('red', 'blue');
+				if (ringStatus == 0) {
+					ring.classList.add('red');
+				} else if (ringStatus == 1) {
+					ring.classList.add('blue');
 				}
 			});
 		});
+	}
+
+	renderSides(modelSides) {
+		for (let i = 0; i != 2; i++) {
+			this.sides[i].querySelectorAll('.cell').forEach((cell, index) => {
+				const cellData = modelSides[i][index];
+				const rings = cell.querySelectorAll('.ring');
+				rings.forEach((ring, i) => {
+					const ringStatus = cellData[i];
+					if (ringStatus === 'used') {
+						ring.classList.add('used');
+						ring.classList.remove('selected');
+					} else if (ringStatus === 'selected') {
+						ring.classList.add('selected');
+						ring.classList.remove('used');
+					} else {
+						ring.classList.remove('used');
+						ring.classList.remove('selected');
+					}
+				});
+			});
+		}
 	}
 }
 
@@ -309,41 +309,72 @@ class TicTacToeController {
 	constructor(model, view) {
 		this.model = model;
 		this.view = view;
+		this.gameEndMessage = document.getElementById('gameEndMessage');
+		this.restartButton = document.getElementById('restartButton');
 
+		this.startGame();
+		// this.restartButton.addEventListener('click', () => this.startGame());
+	}
+
+	initGame() {
+		this.gameEndMessage.classList.remove('show');
+		this.model.winner = null;
+		this.model.upd.turn = 2;
+		this.model.upd.cell = null;
+		this.model.upd.isSelected = false;
+		this.model.upd.ringSize = null;
+		this.model.sides = [[], []];
+		this.model.board = [];
+		this.model.initBoard();
+		// this.model.printUpd(0);
+		// console.log('board\n', this.model.board);
+		// console.log('\nsides\n', this.model.sides);
+		this.view.renderBoard(this.model.board);
+		this.view.renderSides(this.model.sides);
+	}
+
+	startGame() {
+		this.initGame();
 		this.view.bindSideClick(this.handleSideClick);
 		this.view.bindBoardClick(this.handleBoardClick);
 	}
 
 	handleSideClick = index => {
 		if (this.model.selectRing(index)) {
-			this.view.renderSide(this.model.sides[index[0]], index[0]);
+			// this.view.renderSide(this.model.sides[index[0]], index[0]);
+			this.view.renderSides(this.model.sides);
 		}
 	}
 
 	handleBoardClick = index => {
 		if (this.model.placeRing(index)) {
-			this.view.renderBoard(this.model.board, index);
-			this.view.renderSide(this.model.sides[0], 0);
-			this.view.renderSide(this.model.sides[1], 1); // optimization needs
-			if (!this.model.isWin()) {
-				if (this.model.isDraw()) {
-					console.log('It\'s a draw');
-				} else {
-					this.model.switchTurn();
-					// console.log('Turn was switched');
-				}
+			this.view.renderBoard(this.model.board);
+			this.view.renderSides(this.model.sides);
+			// this.view.renderBoard(this.model.board, index);
+			// this.view.renderSide(this.model.sides[0], 0);
+			// this.view.renderSide(this.model.sides[1], 1); // optimization needs
+			if (this.model.isWin()) {
+				this.endGame(false);
+			} else if (this.model.isDraw()) {
+				this.endGame(true);
 			} else {
-				if (this.model.upd.turn == 0) {
-					console.log('red is winner');
-				} else {
-					console.log('blue is winner');
-				}
+				this.model.switchTurn();
 			}
 		}
 	}
+
+	endGame(draw) {
+		if (draw) {
+			this.gameEndMessage.innerText = "It's a draw!";
+		} else {
+			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"} wins!`;
+			console.log(`${this.model.upd.turn ? "BLUE" : "RED"} wins`);
+		}
+		this.gameEndMessage.classList.add('show');
+	}
 }
 
-const game = new TicTacToeController(new TicTacToeModel(), new TicTacToeView);
+const game = new TicTacToeController(new TicTacToeModel(), new TicTacToeView());
 
 // /*
 // Flow:
