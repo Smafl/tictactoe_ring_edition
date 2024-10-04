@@ -42,10 +42,8 @@ class TicTacToeModel {
 	isCellWin(cell) {
 		for (let i = 0; i !=3; i++) {
 			if (cell[i] == this.upd.turn) {
-				// console.log(`cell is ${this.upd.turn}`);
 				return true;
 			} else if (cell[i] == (this.upd.turn ^ 1)) {
-				// console.log(`cell is ${this.upd.turn ^ 1}`);
 				return false;
 			}
 		}
@@ -73,26 +71,17 @@ class TicTacToeModel {
 	}
 
 	isDraw() {
-		for (let i = 0; i != 9; i++) {
-			if (!this.board[i].includes(0) && !this.board[i].includes(1)) {
-				// console.log('There is still empty cell');
-				return false;
-			}
-		}
-
 		for (let cell = 0; cell != 2; cell++) {
             for (let ring = 0; ring != 3; ring++) {
                 if (this.sides[this.upd.turn ^ 1][cell][ring] !== 'used') {
                     for (let boardCell = 0; boardCell != 9; boardCell++) {
                         if (this.canPlaceRing(boardCell, ring)) {
-							// console.log('Ring can be placed');
                             return false;
                         }
                     }
                 }
             }
         }
-		// console.log('Should be a draw');
 		return true;
 	}
 
@@ -101,7 +90,6 @@ class TicTacToeModel {
 			console.error('index contains Nan');
 			return false;
 		}
-		// this.printUpd(1)
 		if (this.upd.turn != index[0] && this.upd.turn != 2) {
 			console.log('turn is wrong');
 			return false;
@@ -132,12 +120,9 @@ class TicTacToeModel {
 				this.upd.cell = index[1];
 				this.upd.isSelected = true;
 				this.upd.ringSize = ring;
-				// console.log('selected: ', ring);
 				break;
 			}
 		}
-		// this.printUpd(2);
-		// console.log('sides select: ', this.sides);
 		return true;
 	}
 
@@ -155,21 +140,16 @@ class TicTacToeModel {
 					return false;
 				}
 			}
-			// console.log(`ring size: ${this.upd.ringSize}, ring: ${ring}`);
 			if (this.upd.ringSize == ring) {
 				if (this.board[index][ring] == null) {
 					this.board[index][ring] = this.upd.turn;
 					this.sides[this.upd.turn][this.upd.cell][ring] = 'used';
-					// console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
 					this.upd.isSelected = false;
 					this.upd.ringSize = null;
 					break;
 				}
 			}
 		}
-		// this.printUpd(3);
-		// console.log('sides place: ', this.sides);
-		// console.log('board: ', this.board);
 		return true;
 	}
 
@@ -228,6 +208,25 @@ class TicTacToeView {
 		}
 	}
 
+	cleanRings() {
+		for (let i = 0; i != 2; i++) {
+			this.sides[i].querySelectorAll('.cell').forEach(cell => {
+				const rings = cell.querySelectorAll('.ring');
+				rings.forEach(ring => {
+					ring.classList.remove('used', 'selected')
+				});
+			});
+		}
+
+		const cells = this.grid.querySelectorAll('.grid');
+		cells.forEach(cell => {
+			const rings = cell.querySelectorAll('.ring');
+			rings.forEach(ring => {
+				ring.classList.remove('red', 'blue');
+			});
+		});
+	}
+
 	bindBoardClick(handler) {
 		const cells = this.grid.querySelectorAll('.grid');
 		cells.forEach(cell => {
@@ -237,7 +236,6 @@ class TicTacToeView {
 				const cell = target.closest('.cell');
 				if (cell.classList.contains('grid')) {
 					index = parseInt(cell.getAttribute('data-index'));
-					// console.log('board index is: ', index);
 					handler(index);
 				} // else -> error ?
 			})
@@ -254,7 +252,6 @@ class TicTacToeView {
 					if (cell.classList.contains('side')) {
 						index.push(parseInt(cell.getAttribute('data-color')));
 						index.push(parseInt(cell.getAttribute('data-index')));
-						// console.log('side indexes are: ', index);
 						handler(index);
 					} // else -> error ?
 				});
@@ -268,11 +265,9 @@ class TicTacToeView {
 			const rings = cell.querySelectorAll('.ring');
 			rings.forEach((ring, i) => {
 				const ringStatus = board[index][i];
-				// console.log('status ', ringStatus);
-				// ring.classList.remove('red', 'blue');
-				if (ringStatus == 0) {
+				if (ringStatus === 0) {
 					ring.classList.add('red');
-				} else if (ringStatus == 1) {
+				} else if (ringStatus === 1) {
 					ring.classList.add('blue');
 				}
 			});
@@ -312,12 +307,16 @@ class TicTacToeController {
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.restartButton = document.getElementById('restartButton');
 
+		this.view.bindSideClick(this.handleSideClick);
+		this.view.bindBoardClick(this.handleBoardClick);
+
 		this.startGame();
-		// this.restartButton.addEventListener('click', () => this.startGame());
+		this.restartButton.addEventListener('click', () => this.startGame());
+		this.gameEndMessage.addEventListener('click', () => this.startGame());
 	}
 
-	initGame() {
-		this.gameEndMessage.classList.remove('show');
+	startGame() {
+		this.gameEndMessage.classList.remove('show', 'red-wins', 'blue-wins');
 		this.model.winner = null;
 		this.model.upd.turn = 2;
 		this.model.upd.cell = null;
@@ -326,22 +325,13 @@ class TicTacToeController {
 		this.model.sides = [[], []];
 		this.model.board = [];
 		this.model.initBoard();
-		// this.model.printUpd(0);
-		// console.log('board\n', this.model.board);
-		// console.log('\nsides\n', this.model.sides);
+		this.view.cleanRings();
 		this.view.renderBoard(this.model.board);
 		this.view.renderSides(this.model.sides);
 	}
 
-	startGame() {
-		this.initGame();
-		this.view.bindSideClick(this.handleSideClick);
-		this.view.bindBoardClick(this.handleBoardClick);
-	}
-
 	handleSideClick = index => {
 		if (this.model.selectRing(index)) {
-			// this.view.renderSide(this.model.sides[index[0]], index[0]);
 			this.view.renderSides(this.model.sides);
 		}
 	}
@@ -350,9 +340,6 @@ class TicTacToeController {
 		if (this.model.placeRing(index)) {
 			this.view.renderBoard(this.model.board);
 			this.view.renderSides(this.model.sides);
-			// this.view.renderBoard(this.model.board, index);
-			// this.view.renderSide(this.model.sides[0], 0);
-			// this.view.renderSide(this.model.sides[1], 1); // optimization needs
 			if (this.model.isWin()) {
 				this.endGame(false);
 			} else if (this.model.isDraw()) {
@@ -365,12 +352,18 @@ class TicTacToeController {
 
 	endGame(draw) {
 		if (draw) {
-			this.gameEndMessage.innerText = "It's a draw!";
+			this.gameEndMessage.innerText = "DRAW";
+			this.gameEndMessage.classList.add('draw');
 		} else {
-			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"} wins!`;
-			console.log(`${this.model.upd.turn ? "BLUE" : "RED"} wins`);
+			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"}\nWINS`;
+			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "blue" : "red"}-wins`);
+			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
 		}
 		this.gameEndMessage.classList.add('show');
+
+		// setTimeout(() => {
+		// 	this.gameEndMessage.classList.remove('show');
+		// }, 5000);
 	}
 }
 
