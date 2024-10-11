@@ -6,6 +6,7 @@
 	:root {
 		--cell-size: 100px;
 		--background-color: #282828;
+		--draw-color: #dcdcdc;
 	}
 
 }
@@ -14,6 +15,7 @@
 	:root {
 		--cell-size: 100px;
 		--background-color: white;
+		--draw-color: #000000;
 	}
 }
 
@@ -190,6 +192,6 @@ body {
 }
 
 .draw {
-	color: #000000;
-	-webkit-text-stroke: 3px #000000;
+	color: var(--draw-color);
+	-webkit-text-stroke: 1px #000000;
 }

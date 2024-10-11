@@ -4,12 +4,15 @@ class TicTacToeModel {
 	// provide methods to place rings, switch players, and check for a win
 
 	constructor() {
-		this.winner = null;
 		this.upd = {
 			turn: 2,
 			cell: null,
 			isSelected: false,
-			ringSize: null
+			ringSize: null,
+			winCombo: null,
+			freeCells: 0,
+			winFreeCells: 0,
+			winner: null
 		};
 		this.sides = [[], []];
 		this.board = [];
@@ -28,7 +31,7 @@ class TicTacToeModel {
 	}
 
 	initBoard() {
-		// null (no setted ring), 0 (red), 1 (blue)
+		// null (no set ring), 0 (red), 1 (blue)
 		for (let i = 0; i != 9; i++) {
 			this.board.push([null, null, null]);
 		}
@@ -37,6 +40,30 @@ class TicTacToeModel {
 		for (let i = 0; i != 2; i++) {
 			this.sides[i].push([null, null, null], [null, null, null]);
 		}
+	}
+
+	isEnd() {
+		this.upd.winCombo = this.isWin();
+		console.log('winCombo ', this.upd.winCombo);
+
+		this.canPlaceRing();
+
+		if (this.upd.winCombo != undefined && this.upd.winFreeCells == 0) {
+			this.upd.winner = this.upd.turn ? "blue" : "red";
+			return true;
+		}
+
+		if (this.upd.winCombo == undefined && this.upd.freeCells == 0) {
+			this.upd.winner = 'draw';
+			return true;
+		}
+
+		console.log('free cells ', this.upd.freeCells);
+		console.log('win free cells ', this.upd.winFreeCells);
+
+		this.upd.freeCells = 0;
+		this.upd.winFreeCells = 0;
+		return false;
 	}
 
 	isCellWin(cell) {
@@ -51,38 +78,42 @@ class TicTacToeModel {
 	}
 
 	isWin() {
-		return this.winCombinations.some(combnation => {
+		return this.winCombinations.find(combnation => {
 			return combnation.every(index => {
-				return this.isCellWin(this.board[index]);
-			})
-		})
+				return this.isCellWin(this.board[index])
+			});
+		});
 	}
 
-	canPlaceRing(boardCell, ringSize) {
-		for (let i = 0; i != 3; i++) {
-			if (this.board[boardCell][i] === null) {
-				return i === ringSize;
-			}
-			if (this.board[boardCell][i] !== null && i < ringSize) {
-				return false;
-			}
+	isRingFits(boardCell, ringSize) {
+		let redRing = this.board[boardCell].indexOf(0);
+		let blueRing = this.board[boardCell].indexOf(1);
+		let rings = [redRing, blueRing].filter(ring => ring !== -1);
+		if (rings.length === 0) {
+			return true;
+		}
+		if (Math.min(...rings) > ringSize) {
+			return true;
 		}
 		return false;
 	}
 
-	isDraw() {
+	canPlaceRing() {
 		for (let cell = 0; cell != 2; cell++) {
-            for (let ring = 0; ring != 3; ring++) {
-                if (this.sides[this.upd.turn ^ 1][cell][ring] !== 'used') {
-                    for (let boardCell = 0; boardCell != 9; boardCell++) {
-                        if (this.canPlaceRing(boardCell, ring)) {
-                            return false;
-                        }
-                    }
-                }
-            }
+			let unusedRing = this.sides[this.upd.turn ^ 1][cell].indexOf(null);
+			if (unusedRing == -1) {
+				continue;
+			}
+			for (let boardCell = 0; boardCell != 9; boardCell++) {
+				if (this.isRingFits(boardCell, unusedRing)) {
+					if (this.upd.winCombo != undefined && this.upd.winCombo.indexOf(boardCell) != -1) {
+						console.log(`board cell ${boardCell}`);
+						this.upd.winFreeCells++;
+					}
+					this.upd.freeCells++;
+				}
+			}
         }
-		return true;
 	}
 
 	selectRing(index) {
@@ -230,7 +261,7 @@ class TicTacToeView {
 	bindBoardClick(handler) {
 		const cells = this.grid.querySelectorAll('.grid');
 		cells.forEach(cell => {
-			cell.addEventListener('click', event => {
+			cell.addEventListener('click', event => { // once?
 				let index = null;
 				const target = event.target;
 				const cell = target.closest('.cell');
@@ -245,7 +276,7 @@ class TicTacToeView {
 	bindSideClick(handler) {
 		this.sides.forEach(side => {
 			side.querySelectorAll('.cell').forEach(cell => {
-				cell.addEventListener('click', event => {
+				cell.addEventListener('click', event => { // once?
 					const index = [];
 					const target = event.target;
 					const cell = target.closest('.cell');
@@ -311,17 +342,20 @@ class TicTacToeController {
 		this.view.bindBoardClick(this.handleBoardClick);
 
 		this.startGame();
-		this.restartButton.addEventListener('click', () => this.startGame());
-		this.gameEndMessage.addEventListener('click', () => this.startGame());
+		this.restartButton.addEventListener('click', () => this.startGame()); // once?
+		// this.gameEndMessage.addEventListener('click', () => this.startGame()); // once?
 	}
 
 	startGame() {
 		this.gameEndMessage.classList.remove('show', 'red-wins', 'blue-wins');
-		this.model.winner = null;
 		this.model.upd.turn = 2;
 		this.model.upd.cell = null;
 		this.model.upd.isSelected = false;
 		this.model.upd.ringSize = null;
+		this.model.upd.winCombo = null;
+		this.model.upd.freeCells = 0;
+		this.model.upd.winFreeCells = 0;
+		this.model.upd.winner = null;
 		this.model.sides = [[], []];
 		this.model.board = [];
 		this.model.initBoard();
@@ -331,27 +365,29 @@ class TicTacToeController {
 	}
 
 	handleSideClick = index => {
-		if (this.model.selectRing(index)) {
-			this.view.renderSides(this.model.sides);
+		if (!this.model.selectRing(index)) {
+			return;
 		}
+		this.view.renderSides(this.model.sides);
 	}
 
 	handleBoardClick = index => {
-		if (this.model.placeRing(index)) {
-			this.view.renderBoard(this.model.board);
-			this.view.renderSides(this.model.sides);
-			if (this.model.isWin()) {
-				this.endGame(false);
-			} else if (this.model.isDraw()) {
-				this.endGame(true);
-			} else {
-				this.model.switchTurn();
-			}
+		if (!this.model.placeRing(index)) {
+			return;
+		}
+		this.view.renderBoard(this.model.board);
+		this.view.renderSides(this.model.sides);
+		if (this.model.isEnd()) {
+			// console.log('winner: ', this.model.upd.winner);
+			this.endGame();
+		}
+		else {
+			this.model.switchTurn();
 		}
 	}
 
-	endGame(draw) {
-		if (draw) {
+	endGame() {
+		if (this.model.upd.winner == 'draw') {
 			this.gameEndMessage.innerText = "DRAW";
 			this.gameEndMessage.classList.add('draw');
 		} else {
@@ -361,9 +397,9 @@ class TicTacToeController {
 		}
 		this.gameEndMessage.classList.add('show');
 
-		// setTimeout(() => {
-		// 	this.gameEndMessage.classList.remove('show');
-		// }, 5000);
+		setTimeout(() => {
+			this.gameEndMessage.classList.remove('show');
+		}, 3000);
 	}
 }
 
