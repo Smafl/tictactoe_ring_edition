@@ -9,10 +9,7 @@ class TicTacToeModel {
 			cell: null,
 			isSelected: false,
 			ringSize: null,
-			winCombo: null,
-			freeCells: 0,
-			winFreeCells: 0,
-			winner: null
+			draw: false
 		};
 		this.sides = [[], []];
 		this.board = [];
@@ -43,26 +40,13 @@ class TicTacToeModel {
 	}
 
 	isEnd() {
-		this.upd.winCombo = this.isWin();
-		console.log('winCombo ', this.upd.winCombo);
-
-		this.canPlaceRing();
-
-		if (this.upd.winCombo != undefined && this.upd.winFreeCells == 0) {
-			this.upd.winner = this.upd.turn ? "blue" : "red";
+		if (this.isWin()) {
 			return true;
 		}
-
-		if (this.upd.winCombo == undefined && this.upd.freeCells == 0) {
-			this.upd.winner = 'draw';
+		if (!this.canPlaceRing()) {
+			this.upd.draw = true;
 			return true;
 		}
-
-		console.log('free cells ', this.upd.freeCells);
-		console.log('win free cells ', this.upd.winFreeCells);
-
-		this.upd.freeCells = 0;
-		this.upd.winFreeCells = 0;
 		return false;
 	}
 
@@ -78,7 +62,7 @@ class TicTacToeModel {
 	}
 
 	isWin() {
-		return this.winCombinations.find(combnation => {
+		return this.winCombinations.some(combnation => {
 			return combnation.every(index => {
 				return this.isCellWin(this.board[index])
 			});
@@ -106,14 +90,11 @@ class TicTacToeModel {
 			}
 			for (let boardCell = 0; boardCell != 9; boardCell++) {
 				if (this.isRingFits(boardCell, unusedRing)) {
-					if (this.upd.winCombo != undefined && this.upd.winCombo.indexOf(boardCell) != -1) {
-						console.log(`board cell ${boardCell}`);
-						this.upd.winFreeCells++;
-					}
-					this.upd.freeCells++;
+					return true;
 				}
 			}
         }
+		return false;
 	}
 
 	selectRing(index) {
@@ -356,10 +337,7 @@ class TicTacToeController {
 		this.model.upd.cell = null;
 		this.model.upd.isSelected = false;
 		this.model.upd.ringSize = null;
-		this.model.upd.winCombo = null;
-		this.model.upd.freeCells = 0;
-		this.model.upd.winFreeCells = 0;
-		this.model.upd.winner = null;
+		this.model.upd.draw = false;
 		this.model.sides = [[], []];
 		this.model.board = [];
 		this.model.initBoard();
@@ -391,7 +369,7 @@ class TicTacToeController {
 	}
 
 	endGame() {
-		if (this.model.upd.winner == 'draw') {
+		if (this.model.upd.draw == true) {
 			this.gameEndMessage.innerText = "DRAW";
 			this.gameEndMessage.classList.add('draw');
 		} else {
