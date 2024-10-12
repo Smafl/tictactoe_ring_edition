@@ -9,6 +9,7 @@ class TicTacToeModel {
 			cell: null,
 			isSelected: false,
 			ringSize: null,
+			winCombo: null,
 			draw: false
 		};
 		this.sides = [[], []];
@@ -52,21 +53,38 @@ class TicTacToeModel {
 
 	isCellWin(cell) {
 		for (let i = 0; i !=3; i++) {
-			if (cell[i] == this.upd.turn) {
-				return true;
-			} else if (cell[i] == (this.upd.turn ^ 1)) {
-				return false;
-			}
+			if(cell[i] == null)
+				continue;
+
+			return cell[i] == this.upd.turn;
 		}
 		return false;
 	}
 
-	isWin() {
-		return this.winCombinations.some(combnation => {
-			return combnation.every(index => {
+	getWin() {
+		return this.winCombinations.find(combination => {
+			return combination.every(index => {
 				return this.isCellWin(this.board[index])
 			});
 		});
+	}
+
+	isWin() {
+		this.upd.winCombo = this.getWin();
+
+		if(this.upd.winCombo != null) {
+			for (const index of this.upd.winCombo) {
+				const cell = this.board[index];
+				for (let i = 0; i != 3; i++) {
+					if (cell[i] === null)
+						continue;
+
+					cell[i] = 'win';
+					break;
+				}
+			}
+		}
+		return this.upd.winCombo != null;
 	}
 
 	isRingFits(boardCell, ringSize) {
@@ -220,7 +238,7 @@ class TicTacToeView {
 		}
 	}
 
-	cleanRings() {
+	clearClasses() {
 		for (let i = 0; i != 2; i++) {
 			this.sides[i].querySelectorAll('.cell').forEach(cell => {
 				const rings = cell.querySelectorAll('.ring');
@@ -234,22 +252,24 @@ class TicTacToeView {
 		cells.forEach(cell => {
 			const rings = cell.querySelectorAll('.ring');
 			rings.forEach(ring => {
-				ring.classList.remove('red', 'blue');
+				ring.classList.remove('red', 'blue', 'win');
 			});
 		});
+
+		document.querySelector('.board').classList.remove('win');
 	}
 
 	bindBoardClick(handler) {
 		const cells = this.grid.querySelectorAll('.grid');
 		cells.forEach(cell => {
-			cell.addEventListener('click', event => { // once?
+			cell.addEventListener('click', event => {
 				let index = null;
 				const target = event.target;
 				const cell = target.closest('.cell');
 				if (cell.classList.contains('grid')) {
 					index = parseInt(cell.getAttribute('data-index'));
 					handler(index);
-				} // else -> error ?
+				}
 			})
 		})
 	}
@@ -257,7 +277,7 @@ class TicTacToeView {
 	bindSideClick(handler) {
 		this.sides.forEach(side => {
 			side.querySelectorAll('.cell').forEach(cell => {
-				cell.addEventListener('click', event => { // once?
+				cell.addEventListener('click', event => {
 					const index = [];
 					const target = event.target;
 					const cell = target.closest('.cell');
@@ -265,7 +285,7 @@ class TicTacToeView {
 						index.push(parseInt(cell.getAttribute('data-color')));
 						index.push(parseInt(cell.getAttribute('data-index')));
 						handler(index);
-					} // else -> error ?
+					}
 				});
 			});
 		});
@@ -281,6 +301,9 @@ class TicTacToeView {
 					ring.classList.add('red');
 				} else if (ringStatus === 1) {
 					ring.classList.add('blue');
+				} else if (ringStatus === 'win') {
+					ring.classList.add('win');
+					document.querySelector('.board').classList.add('win');
 				}
 			});
 		});
@@ -337,11 +360,12 @@ class TicTacToeController {
 		this.model.upd.cell = null;
 		this.model.upd.isSelected = false;
 		this.model.upd.ringSize = null;
+		this.model.upd.winCombo = null;
 		this.model.upd.draw = false;
 		this.model.sides = [[], []];
 		this.model.board = [];
 		this.model.initBoard();
-		this.view.cleanRings();
+		this.view.clearClasses();
 		this.view.renderBoard(this.model.board);
 		this.view.renderSides(this.model.sides);
 	}
@@ -357,10 +381,11 @@ class TicTacToeController {
 		if (!this.model.placeRing(index)) {
 			return;
 		}
+		if (this.model.upd.turn === 2)
+			return;
 		this.view.renderBoard(this.model.board);
 		this.view.renderSides(this.model.sides);
 		if (this.model.isEnd()) {
-			// console.log('winner: ', this.model.upd.winner);
 			this.endGame();
 		}
 		else {
@@ -373,6 +398,7 @@ class TicTacToeController {
 			this.gameEndMessage.innerText = "DRAW";
 			this.gameEndMessage.classList.add('draw');
 		} else {
+			this.view.renderBoard(this.model.board);
 			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"}\nWINS`;
 			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "blue" : "red"}-wins`);
 			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
