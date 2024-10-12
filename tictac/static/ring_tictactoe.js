@@ -4,12 +4,13 @@ class TicTacToeModel {
 	// provide methods to place rings, switch players, and check for a win
 
 	constructor() {
-		this.winner = null;
 		this.upd = {
 			turn: 2,
 			cell: null,
 			isSelected: false,
-			ringSize: null
+			ringSize: null,
+			winCombo: null,
+			draw: false
 		};
 		this.sides = [[], []];
 		this.board = [];
@@ -28,7 +29,7 @@ class TicTacToeModel {
 	}
 
 	initBoard() {
-		// null (no setted ring), 0 (red), 1 (blue)
+		// null (no set ring), 0 (red), 1 (blue)
 		for (let i = 0; i != 9; i++) {
 			this.board.push([null, null, null]);
 		}
@@ -39,61 +40,79 @@ class TicTacToeModel {
 		}
 	}
 
-	isCellWin(cell) {
-		for (let i = 0; i !=3; i++) {
-			if (cell[i] == this.upd.turn) {
-				// console.log(`cell is ${this.upd.turn}`);
-				return true;
-			} else if (cell[i] == (this.upd.turn ^ 1)) {
-				// console.log(`cell is ${this.upd.turn ^ 1}`);
-				return false;
-			}
+	isEnd() {
+		if (this.isWin()) {
+			return true;
+		}
+		if (!this.canPlaceRing()) {
+			this.upd.draw = true;
+			return true;
 		}
 		return false;
+	}
+
+	isCellWin(cell) {
+		for (let i = 0; i !=3; i++) {
+			if(cell[i] == null)
+				continue;
+
+			return cell[i] == this.upd.turn;
+		}
+		return false;
+	}
+
+	getWin() {
+		return this.winCombinations.find(combination => {
+			return combination.every(index => {
+				return this.isCellWin(this.board[index])
+			});
+		});
 	}
 
 	isWin() {
-		return this.winCombinations.some(combnation => {
-			return combnation.every(index => {
-				return this.isCellWin(this.board[index]);
-			})
-		})
+		this.upd.winCombo = this.getWin();
+
+		if(this.upd.winCombo != null) {
+			for (const index of this.upd.winCombo) {
+				const cell = this.board[index];
+				for (let i = 0; i != 3; i++) {
+					if (cell[i] === null)
+						continue;
+
+					cell[i] = 'win';
+					break;
+				}
+			}
+		}
+		return this.upd.winCombo != null;
 	}
 
-	canPlaceRing(boardCell, ringSize) {
-		for (let i = 0; i != 3; i++) {
-			if (this.board[boardCell][i] === null) {
-				return i === ringSize;
-			}
-			if (this.board[boardCell][i] !== null && i < ringSize) {
-				return false;
-			}
+	isRingFits(boardCell, ringSize) {
+		let redRing = this.board[boardCell].indexOf(0);
+		let blueRing = this.board[boardCell].indexOf(1);
+		let rings = [redRing, blueRing].filter(ring => ring !== -1);
+		if (rings.length === 0) {
+			return true;
+		}
+		if (Math.min(...rings) > ringSize) {
+			return true;
 		}
 		return false;
 	}
 
-	isDraw() {
-		for (let i = 0; i != 9; i++) {
-			if (!this.board[i].includes(0) && !this.board[i].includes(1)) {
-				// console.log('There is still empty cell');
-				return false;
-			}
-		}
-
+	canPlaceRing() {
 		for (let cell = 0; cell != 2; cell++) {
-            for (let ring = 0; ring != 3; ring++) {
-                if (this.sides[this.upd.turn ^ 1][cell][ring] !== 'used') {
-                    for (let boardCell = 0; boardCell != 9; boardCell++) {
-                        if (this.canPlaceRing(boardCell, ring)) {
-							// console.log('Ring can be placed');
-                            return false;
-                        }
-                    }
-                }
-            }
+			let unusedRing = this.sides[this.upd.turn ^ 1][cell].indexOf(null);
+			if (unusedRing == -1) {
+				continue;
+			}
+			for (let boardCell = 0; boardCell != 9; boardCell++) {
+				if (this.isRingFits(boardCell, unusedRing)) {
+					return true;
+				}
+			}
         }
-		// console.log('Should be a draw');
-		return true;
+		return false;
 	}
 
 	selectRing(index) {
@@ -101,7 +120,6 @@ class TicTacToeModel {
 			console.error('index contains Nan');
 			return false;
 		}
-		// this.printUpd(1)
 		if (this.upd.turn != index[0] && this.upd.turn != 2) {
 			console.log('turn is wrong');
 			return false;
@@ -132,12 +150,9 @@ class TicTacToeModel {
 				this.upd.cell = index[1];
 				this.upd.isSelected = true;
 				this.upd.ringSize = ring;
-				// console.log('selected: ', ring);
 				break;
 			}
 		}
-		// this.printUpd(2);
-		// console.log('sides select: ', this.sides);
 		return true;
 	}
 
@@ -155,21 +170,16 @@ class TicTacToeModel {
 					return false;
 				}
 			}
-			// console.log(`ring size: ${this.upd.ringSize}, ring: ${ring}`);
 			if (this.upd.ringSize == ring) {
 				if (this.board[index][ring] == null) {
 					this.board[index][ring] = this.upd.turn;
 					this.sides[this.upd.turn][this.upd.cell][ring] = 'used';
-					// console.log(`in cell ${this.upd.turn} placed a ring size ${this.upd.ringSize}`);
 					this.upd.isSelected = false;
 					this.upd.ringSize = null;
 					break;
 				}
 			}
 		}
-		// this.printUpd(3);
-		// console.log('sides place: ', this.sides);
-		// console.log('board: ', this.board);
 		return true;
 	}
 
@@ -228,6 +238,27 @@ class TicTacToeView {
 		}
 	}
 
+	clearClasses() {
+		for (let i = 0; i != 2; i++) {
+			this.sides[i].querySelectorAll('.cell').forEach(cell => {
+				const rings = cell.querySelectorAll('.ring');
+				rings.forEach(ring => {
+					ring.classList.remove('used', 'selected')
+				});
+			});
+		}
+
+		const cells = this.grid.querySelectorAll('.grid');
+		cells.forEach(cell => {
+			const rings = cell.querySelectorAll('.ring');
+			rings.forEach(ring => {
+				ring.classList.remove('red', 'blue', 'win');
+			});
+		});
+
+		document.querySelector('.board').classList.remove('win');
+	}
+
 	bindBoardClick(handler) {
 		const cells = this.grid.querySelectorAll('.grid');
 		cells.forEach(cell => {
@@ -237,9 +268,8 @@ class TicTacToeView {
 				const cell = target.closest('.cell');
 				if (cell.classList.contains('grid')) {
 					index = parseInt(cell.getAttribute('data-index'));
-					// console.log('board index is: ', index);
 					handler(index);
-				} // else -> error ?
+				}
 			})
 		})
 	}
@@ -254,9 +284,8 @@ class TicTacToeView {
 					if (cell.classList.contains('side')) {
 						index.push(parseInt(cell.getAttribute('data-color')));
 						index.push(parseInt(cell.getAttribute('data-index')));
-						// console.log('side indexes are: ', index);
 						handler(index);
-					} // else -> error ?
+					}
 				});
 			});
 		});
@@ -268,12 +297,13 @@ class TicTacToeView {
 			const rings = cell.querySelectorAll('.ring');
 			rings.forEach((ring, i) => {
 				const ringStatus = board[index][i];
-				// console.log('status ', ringStatus);
-				// ring.classList.remove('red', 'blue');
-				if (ringStatus == 0) {
+				if (ringStatus === 0) {
 					ring.classList.add('red');
-				} else if (ringStatus == 1) {
+				} else if (ringStatus === 1) {
 					ring.classList.add('blue');
+				} else if (ringStatus === 'win') {
+					ring.classList.add('win');
+					document.querySelector('.board').classList.add('win');
 				}
 			});
 		});
@@ -311,66 +341,88 @@ class TicTacToeController {
 		this.view = view;
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.restartButton = document.getElementById('restartButton');
+		this.instuctions = document.getElementById('instructions');
+		this.howToPlayButton = document.getElementById('howToPlayButton');
+
+		this.view.bindSideClick(this.handleSideClick);
+		this.view.bindBoardClick(this.handleBoardClick);
 
 		this.startGame();
-		// this.restartButton.addEventListener('click', () => this.startGame());
+		this.restartButton.addEventListener('click', () => this.startGame());
+		this.howToPlayButton.addEventListener('click', () => this.showInstructions(true));
+		this.instuctions.addEventListener('click', () => this.showInstructions(false));
+		// this.gameEndMessage.addEventListener('click', () => this.startGame());
 	}
 
-	initGame() {
-		this.gameEndMessage.classList.remove('show');
-		this.model.winner = null;
+	startGame() {
+		this.gameEndMessage.classList.remove('show', 'red-wins', 'blue-wins');
 		this.model.upd.turn = 2;
 		this.model.upd.cell = null;
 		this.model.upd.isSelected = false;
 		this.model.upd.ringSize = null;
+		this.model.upd.winCombo = null;
+		this.model.upd.draw = false;
 		this.model.sides = [[], []];
 		this.model.board = [];
 		this.model.initBoard();
-		// this.model.printUpd(0);
-		// console.log('board\n', this.model.board);
-		// console.log('\nsides\n', this.model.sides);
+		this.view.clearClasses();
 		this.view.renderBoard(this.model.board);
 		this.view.renderSides(this.model.sides);
 	}
 
-	startGame() {
-		this.initGame();
-		this.view.bindSideClick(this.handleSideClick);
-		this.view.bindBoardClick(this.handleBoardClick);
-	}
-
 	handleSideClick = index => {
-		if (this.model.selectRing(index)) {
-			// this.view.renderSide(this.model.sides[index[0]], index[0]);
-			this.view.renderSides(this.model.sides);
+		if (!this.model.selectRing(index)) {
+			return;
 		}
+		this.view.renderSides(this.model.sides);
 	}
 
 	handleBoardClick = index => {
-		if (this.model.placeRing(index)) {
-			this.view.renderBoard(this.model.board);
-			this.view.renderSides(this.model.sides);
-			// this.view.renderBoard(this.model.board, index);
-			// this.view.renderSide(this.model.sides[0], 0);
-			// this.view.renderSide(this.model.sides[1], 1); // optimization needs
-			if (this.model.isWin()) {
-				this.endGame(false);
-			} else if (this.model.isDraw()) {
-				this.endGame(true);
-			} else {
-				this.model.switchTurn();
-			}
+		if (!this.model.placeRing(index)) {
+			return;
+		}
+		if (this.model.upd.turn === 2)
+			return;
+		this.view.renderBoard(this.model.board);
+		this.view.renderSides(this.model.sides);
+		if (this.model.isEnd()) {
+			this.endGame();
+		}
+		else {
+			this.model.switchTurn();
 		}
 	}
 
-	endGame(draw) {
-		if (draw) {
-			this.gameEndMessage.innerText = "It's a draw!";
+	endGame() {
+		if (this.model.upd.draw == true) {
+			this.gameEndMessage.innerText = "DRAW";
+			this.gameEndMessage.classList.add('draw');
 		} else {
-			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"} wins!`;
-			console.log(`${this.model.upd.turn ? "BLUE" : "RED"} wins`);
+			this.view.renderBoard(this.model.board);
+			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"}\nWINS`;
+			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "blue" : "red"}-wins`);
+			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
 		}
 		this.gameEndMessage.classList.add('show');
+
+		setTimeout(() => {
+			this.gameEndMessage.classList.remove('show');
+		}, 3000);
+	}
+
+	showInstructions(show) {
+		this.instuctions.innerText = `Each player has 2 sets of 3 rings,
+		each with different sizes.
+
+		Players can place a larger ring over a smaller one.
+		The color of the largest ring on a cell
+		determines control of that cell.
+
+		The main goal is to align 3 of your
+		colored rings in a row:
+		horizontally, vertically, or diagonally.`;
+
+		this.instuctions.classList.toggle('show', show);
 	}
 }
 

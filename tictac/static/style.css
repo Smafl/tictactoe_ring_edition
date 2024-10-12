@@ -6,7 +6,7 @@
 	:root {
 		--cell-size: 100px;
 		--background-color: #282828;
-		--restart-batton-color:
+		--draw-color: #dcdcdc;
 	}
 
 }
@@ -15,7 +15,7 @@
 	:root {
 		--cell-size: 100px;
 		--background-color: white;
-		--restart-batton-color: white;
+		--draw-color: #000000;
 	}
 }
 
@@ -117,7 +117,7 @@ body {
 }
 
 [data-color="1"] .ring {
-	border: 4px solid #0097ff;
+	border: 4px solid #00dcff;
 	box-shadow: 0 0 16px 0 #0097ff80;
 }
 
@@ -137,12 +137,37 @@ body {
 }
 
 .ring.blue {
-	border: 4px solid #0097ff;
+	border: 4px solid #00dcff;
 	box-shadow: 0 0 16px 0 #0097ff80;
 }
 
-/*	BUTTON	*/
-#restartButton {
+.board.win .ring:not(.win) {
+	opacity: 0.3;
+}
+
+/* .ring.win {
+	animation: flash 500ms ease-in-out infinite alternate;
+}
+
+@keyframes flash {
+	from {
+		filter: brightness(1);
+	}
+	to {
+		filter: brightness(3);
+	}
+} */
+
+/*	BUTTONS	*/
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#restartButton, #howToPlayButton {
 	display: block;
 	margin: 0 auto;
 	background-color: inherit;
@@ -150,17 +175,17 @@ body {
 	outline: none;
 	appearance: none;
 	cursor: pointer;
-	margin-top: 20px;
+	margin-top: 10px;
 	color: #dcdcdc;
 	font-size: 1.5rem;
 }
 
-#restartButton:hover {
+#restartButton:hover, #howToPlayButton:hover {
 	color: lime;
 }
 
 /*	MESSAGE	*/
-#gameEndMessage.show {
+#gameEndMessage.show{
 	display: flex;
 }
 
@@ -171,13 +196,51 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    /* background-color: rgba(0, 0, 0, 0.5); */
     justify-content: center;
     align-items: center;
 	align-content: center;
 	text-align: center;
-    color: black;
+    color: #000000;
     font-size: 5rem;
-	backdrop-filter: blur(20px);
-	/* transition: backdrop-filter 1s ease-in; */
+	backdrop-filter: blur(12px);
+	transition: backdrop-filter 4s ease-in;
+	font-family: monospace;
+}
+
+#instructions.show {
+	display: flex;
+}
+
+.how-to-play {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+	align-content: center;
+	text-align: center;
+    color: #000000;
+    font-size: 1.5rem;
+	font-family: monospace;
+	background-color: var(--background-color);
+	cursor: default;
+	user-select: none;
+}
+
+.red-wins {
+	color: #ff00ff;
+	-webkit-text-stroke: 1px #000000;
+}
+
+.blue-wins {
+	color: #00dcff;
+	-webkit-text-stroke: 1px #000000;
+}
+
+.draw {
+	color: var(--draw-color);
+	-webkit-text-stroke: 1px #000000;
 }
