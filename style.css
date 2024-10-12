@@ -141,8 +141,16 @@ body {
 	box-shadow: 0 0 16px 0 #0097ff80;
 }
 
-/*	BUTTON	*/
-#restartButton {
+/*	BUTTONS	*/
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#restartButton, #howToPlayButton {
 	display: block;
 	margin: 0 auto;
 	background-color: inherit;
@@ -150,17 +158,17 @@ body {
 	outline: none;
 	appearance: none;
 	cursor: pointer;
-	margin-top: 20px;
+	margin-top: 10px;
 	color: #dcdcdc;
 	font-size: 1.5rem;
 }
 
-#restartButton:hover {
+#restartButton:hover, #howToPlayButton:hover {
 	color: lime;
 }
 
 /*	MESSAGE	*/
-#gameEndMessage.show {
+#gameEndMessage.show{
 	display: flex;
 }
 
@@ -179,6 +187,29 @@ body {
     font-size: 5rem;
 	backdrop-filter: blur(12px);
 	transition: backdrop-filter 4s ease-in;
+	font-family: monospace;
+}
+
+#instructions.show {
+	display: flex;
+}
+
+.how-to-play {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+	align-content: center;
+	text-align: center;
+    color: #000000;
+    font-size: 2rem;
+	background-color: var(--background-color);
+	cursor: default;
+	user-select: none;
 }
 
 .red-wins {
@@ -187,7 +218,7 @@ body {
 }
 
 .blue-wins {
-	color: #0097ff;
+	color: #00dcff;
 	-webkit-text-stroke: 1px #000000;
 }
 

@@ -337,13 +337,17 @@ class TicTacToeController {
 		this.view = view;
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.restartButton = document.getElementById('restartButton');
+		this.instuctions = document.getElementById('instructions');
+		this.howToPlayButton = document.getElementById('howToPlayButton');
 
 		this.view.bindSideClick(this.handleSideClick);
 		this.view.bindBoardClick(this.handleBoardClick);
 
 		this.startGame();
-		this.restartButton.addEventListener('click', () => this.startGame()); // once?
-		// this.gameEndMessage.addEventListener('click', () => this.startGame()); // once?
+		this.restartButton.addEventListener('click', () => this.startGame());
+		this.howToPlayButton.addEventListener('click', () => this.showInstructions(true));
+		this.instuctions.addEventListener('click', () => this.showInstructions(false));
+		// this.gameEndMessage.addEventListener('click', () => this.startGame());
 	}
 
 	startGame() {
@@ -400,6 +404,21 @@ class TicTacToeController {
 		setTimeout(() => {
 			this.gameEndMessage.classList.remove('show');
 		}, 3000);
+	}
+
+	showInstructions(show) {
+		this.instuctions.innerText = `Each player has 2 sets of 3 rings,
+		each with different sizes.
+
+		Players can place a larger ring over a smaller one.
+		The color of the largest ring on a cell
+		determines control of that cell.
+
+		The main goal is to align 3 of your
+		colored rings in a row:
+		horizontally, vertically, or diagonally.`;
+
+		this.instuctions.classList.toggle('show', show);
 	}
 }
 
