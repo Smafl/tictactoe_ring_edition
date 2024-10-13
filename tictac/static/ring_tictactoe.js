@@ -21,13 +21,6 @@ class TicTacToeModel {
 		this.initBoard();
 	}
 
-	printUpd(log) {
-		console.log('log ', log, '; turn: ', this.upd.turn);
-		console.log('log ', log, '; cell: ', this.upd.cell);
-		console.log('log ', log, '; is selected: ', this.upd.isSelected);
-		console.log('log ', log, '; ring size: ', this.upd.ringSize);
-	}
-
 	initBoard() {
 		// null (no set ring), 0 (red), 1 (blue)
 		for (let i = 0; i != 9; i++) {
@@ -407,7 +400,7 @@ class TicTacToeController {
 
 		setTimeout(() => {
 			this.gameEndMessage.classList.remove('show');
-		}, 3000);
+		}, 2000);
 	}
 
 	showInstructions(show) {

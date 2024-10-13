@@ -145,19 +145,6 @@ body {
 	opacity: 0.3;
 }
 
-/* .ring.win {
-	animation: flash 500ms ease-in-out infinite alternate;
-}
-
-@keyframes flash {
-	from {
-		filter: brightness(1);
-	}
-	to {
-		filter: brightness(3);
-	}
-} */
-
 /*	BUTTONS	*/
 .button-container {
     display: flex;
