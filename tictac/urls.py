@@ -3,6 +3,7 @@ from . import views
 
 # URL configuration
 urlpatterns = [
-	path('', views.test),
-	path('game/', views.run_game)
+	path('', views.welcome),
+	path('find-room/', views.find_room, name='find_room'),
+	path('<str:room_name>/', views.run_game, name='run_game')
 ]

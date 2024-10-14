@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play Tic-Tac-Toe</title>
+    <script>
+        function findRoom() {
+            fetch('/tictac/find-room/', {  // Added leading slash for correct path
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'waiting') {
+                    alert("Waiting for another player...");
+                } else if (data.status === 'joined') {
+                    window.location.href = `/tictac/${data.room_name}/`;  // Redirect to the game page
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</head>
+<body>
+    <h1>Welcome to Tic-Tac-Toe</h1>
+    <button onclick="findRoom()">Play Tic-Tac-Toe</button>
+</body>
+</html>
