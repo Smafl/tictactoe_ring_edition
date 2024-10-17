@@ -154,7 +154,8 @@ body {
     margin-top: 20px;
 }
 
-#restartButton, #howToPlayButton {
+#restartButton, #howToPlayButton,
+#secondUserButton, #quitButton {
 	display: block;
 	margin: 0 auto;
 	background-color: inherit;
@@ -167,7 +168,8 @@ body {
 	font-size: 1.5rem;
 }
 
-#restartButton:hover, #howToPlayButton:hover {
+#restartButton:hover, #howToPlayButton:hover,
+#secondUserButton:hover, #quitButton:hover {
 	color: lime;
 }
 

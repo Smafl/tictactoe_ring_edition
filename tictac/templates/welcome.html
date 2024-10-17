@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Play Tic-Tac-Toe</title>
     <script>
-        function findRoom() {
-            fetch('/tictac/find-room/', {  // Added leading slash for correct path
+        function createRoom() {
+            fetch('/tictac/create-room/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -20,10 +20,9 @@
                 return response.json();
             })
             .then(data => {
-                if (data.status === 'waiting') {
-                    alert("Waiting for another player...");
-                } else if (data.status === 'joined') {
-                    window.location.href = `/tictac/${data.room_name}/`;  // Redirect to the game page
+                console.log(data);
+                if (data.status === 'joined') {
+                    window.location.href = `/tictac/${data.name}/`;  // Redirect to the game page
                 }
             })
             .catch(error => console.error('Error:', error));
@@ -32,6 +31,6 @@
 </head>
 <body>
     <h1>Welcome to Tic-Tac-Toe</h1>
-    <button onclick="findRoom()">Play Tic-Tac-Toe</button>
+    <button onclick="createRoom()">Play Tic-Tac-Toe</button>
 </body>
 </html>

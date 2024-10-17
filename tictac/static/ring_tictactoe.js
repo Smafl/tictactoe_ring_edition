@@ -397,6 +397,7 @@ class TicTacToeController {
 			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
 		}
 		this.gameEndMessage.classList.add('show');
+		this.saveGameResult(roomName, player1)
 
 		setTimeout(() => {
 			this.gameEndMessage.classList.remove('show');
@@ -416,6 +417,33 @@ class TicTacToeController {
 		horizontally, vertically, or diagonally.`;
 
 		this.instuctions.classList.toggle('show', show);
+	}
+
+	// saveGameResult(roomName, winner, isDraw, gameState) {
+	saveGameResult(roomName, player1) {
+		console.log(`/tictac/${roomName}/save-result/`);
+		console.log(`player1 ${player1}`);
+		fetch(`/tictac/${roomName}/save-result/`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': '{{ csrf_token }}',
+			},
+			body: JSON.stringify({
+				winner: player1,
+				// is_draw: isDraw,
+				// state: gameState
+			})
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success') {
+				console.log('Game result saved');
+			} else {
+				console.error('Failed to save result:', data.message);
+			}
+		})
+		.catch(error => console.error('Error saving game result:', error));
 	}
 }
 
