@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
-from .models import Room, GameResult
+from .models import Room, UserProfile
 import json
 import logging
 
@@ -16,10 +16,12 @@ def create_room(request):
 	if request.method == 'POST':
 		try:
 			logger.info("Received POST request for creating room.")
-			user = request.user
+			# user = request.user
+			user_profile = UserProfile.objects.create(user=f'DefaultUser{UserProfile.objects.count() + 1}')
 			name = f'Room-{Room.objects.count() + 1}'
-			room = Room.objects.create(name=name, player1=user.username)
-			logger.info(f"User {user.username} created room {room.name}.")
+			room = Room.objects.create(name=name, player1=user_profile)
+			# room = Room.objects.create(name=name, player1.username)
+			logger.info(f"User {user_profile} created room {room.name}.")
 			return JsonResponse({'status': 'joined', 'name': room.name})
 		except Exception as e:
 			logger.error(f"Error retrieving rooms: {e}")
@@ -30,28 +32,47 @@ def create_room(request):
 def run_game(request, room_name):
 	context = {
 		'room_name': room_name,
-		'player1': 'Player1 Name',
-		'player2': 'Player2 Name'
+		# 'player1': 'Player1 Name',
+		'player1': room_name.player1,
+		# 'player2': 'Player2 Name'
 	}
 	return render(request, 'index.html', context)
 
 @csrf_exempt
 def save_game_result(request, room_name):
 	if request.method == 'POST':
-		data = json.loads(request.body)
-		# game_state = data.get('state')
-		game_winner = data.get('winner')
-		# game_is_draw = data.get('is_draw')
-
 		try:
+			data = json.loads(request.body)
+			game_winner = data.get('winner')
+			is_draw = data.get('is_draw')
+			logger.info(f"winner is ${game_winner}, is draw: ${is_draw}")
 			room = Room.objects.get(name=room_name)
-			# result = GameResult.objects.create(room=room, state=game_state, winner=game_winner, is_draw=game_is_draw)
-			result = GameResult.objects.create(room=room, winner=game_winner)
-			result.save()
-			logger.info(f"Result for {result.room} saved, state is {result.state}")
+
+			if is_draw:
+				room.player1.draws += 1
+				room.player1.games_played += 1
+				room.save()
+			elif game_winner == 'player1':
+				room.player1.wins += 1
+				room.player1.games_played += 1
+				room.save()
+			elif game_winner == 'player2': # and room.player2:
+				room.player1.games_played += 1
+				room.save()
+			# 	winner_profile = UserProfile.objects.get(user__username=room.player2)
+			# 	winner_profile.wins += 1
+			# 	winner_profile.games_played += 1
+			# 	winner_profile.save()
+
 			return JsonResponse({'status': 'success', 'message': 'Game result saved'})
+
 		except Room.DoesNotExist:
-			return JsonResponse({'status': 'Bad Request'}, status=400)
+			return JsonResponse({'status': 'Bad Request', 'message': 'Room not found'}, status=400)
+
+		except UserProfile.DoesNotExist:
+			return JsonResponse({'status': 'Bad Request', 'message': 'Player profile not found'}, status=400)
+
+	return JsonResponse({'status': 'Bad Request', 'message': 'Invalid request method'}, status=400)
 
 # user clicks 'play tictac' button
 # room creates with one user

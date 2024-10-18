@@ -332,6 +332,9 @@ class TicTacToeController {
 	constructor(model, view) {
 		this.model = model;
 		this.view = view;
+		this.winner = null;
+		this.player_1 = null;
+		this.player_2 = null;
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.restartButton = document.getElementById('restartButton');
 		this.instuctions = document.getElementById('instructions');
@@ -367,6 +370,10 @@ class TicTacToeController {
 		if (!this.model.selectRing(index)) {
 			return;
 		}
+		if (this.player_1 === null) {
+			this.player_1 = this.model.upd.turn;
+			this.player_2 = this.model.upd.turn ^ 1;
+		}
 		this.view.renderSides(this.model.sides);
 	}
 
@@ -395,9 +402,10 @@ class TicTacToeController {
 			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"}\nWINS`;
 			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "blue" : "red"}-wins`);
 			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
+			this.winner = this.model.upd.turn ? this.player_1 : this.player_2;
 		}
 		this.gameEndMessage.classList.add('show');
-		this.saveGameResult(roomName, player1)
+		this.saveGameResult(roomName, this.winner, this.model.upd.draw)
 
 		setTimeout(() => {
 			this.gameEndMessage.classList.remove('show');
@@ -419,8 +427,7 @@ class TicTacToeController {
 		this.instuctions.classList.toggle('show', show);
 	}
 
-	// saveGameResult(roomName, winner, isDraw, gameState) {
-	saveGameResult(roomName, player1) {
+	saveGameResult(roomName, winner, draw) {
 		console.log(`/tictac/${roomName}/save-result/`);
 		console.log(`player1 ${player1}`);
 		fetch(`/tictac/${roomName}/save-result/`, {
@@ -430,9 +437,8 @@ class TicTacToeController {
 				'X-CSRFToken': '{{ csrf_token }}',
 			},
 			body: JSON.stringify({
-				winner: player1,
-				// is_draw: isDraw,
-				// state: gameState
+				winner: winner,
+				is_draw: draw,
 			})
 		})
 		.then(response => response.json())
