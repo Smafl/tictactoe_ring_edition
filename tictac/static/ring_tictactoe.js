@@ -22,7 +22,7 @@ class TicTacToeModel {
 	}
 
 	initBoard() {
-		// null (no set ring), 0 (red), 1 (blue)
+		// null (no set ring), 0 (left), 1 (right)
 		for (let i = 0; i != 9; i++) {
 			this.board.push([null, null, null]);
 		}
@@ -104,7 +104,7 @@ class TicTacToeModel {
 					return true;
 				}
 			}
-        }
+		}
 		return false;
 	}
 
@@ -245,7 +245,7 @@ class TicTacToeView {
 		cells.forEach(cell => {
 			const rings = cell.querySelectorAll('.ring');
 			rings.forEach(ring => {
-				ring.classList.remove('red', 'blue', 'win');
+				ring.classList.remove('left', 'right', 'win');
 			});
 		});
 
@@ -291,9 +291,11 @@ class TicTacToeView {
 			rings.forEach((ring, i) => {
 				const ringStatus = board[index][i];
 				if (ringStatus === 0) {
-					ring.classList.add('red');
+					ring.classList.add('left');
+					// ring.style.backgroundColor = this.controller.player1Color;
 				} else if (ringStatus === 1) {
-					ring.classList.add('blue');
+					ring.classList.add('right');
+					// ring.style.backgroundColor = this.controller.player2Color;
 				} else if (ringStatus === 'win') {
 					ring.classList.add('win');
 					document.querySelector('.board').classList.add('win');
@@ -303,9 +305,9 @@ class TicTacToeView {
 	}
 
 	renderSides(modelSides) {
-		for (let i = 0; i != 2; i++) {
-			this.sides[i].querySelectorAll('.cell').forEach((cell, index) => {
-				const cellData = modelSides[i][index];
+		for (let side = 0; side != 2; side++) {
+			this.sides[side].querySelectorAll('.cell').forEach((cell, index) => {
+				const cellData = modelSides[side][index];
 				const rings = cell.querySelectorAll('.ring');
 				rings.forEach((ring, i) => {
 					const ringStatus = cellData[i];
@@ -319,6 +321,12 @@ class TicTacToeView {
 						ring.classList.remove('used');
 						ring.classList.remove('selected');
 					}
+					// Apply the player colors to the sides
+					// if (i === 0) {
+					// 	ring.style.backgroundColor = this.controller.player1Color;
+					// } else if (i === 1) {
+					// 	ring.style.backgroundColor = this.controller.player2Color;
+					// }
 				});
 			});
 		}
@@ -333,25 +341,85 @@ class TicTacToeController {
 		this.model = model;
 		this.view = view;
 		this.winner = null;
-		this.player_1 = null;
-		this.player_2 = null;
-		this.gameEndMessage = document.getElementById('gameEndMessage');
+		this.first = null;
+		this.player1Color = '#ff00ff';
+		this.player2Color = '#00dcff';
+
 		this.restartButton = document.getElementById('restartButton');
-		this.instuctions = document.getElementById('instructions');
 		this.howToPlayButton = document.getElementById('howToPlayButton');
+		this.settingsButton = document.getElementById('settingsButton');
+		this.submitButton = document.getElementById('submitButton');
+
+		this.settingsForm = document.getElementById('settingsForm');
+
+		this.gameEndMessage = document.getElementById('gameEndMessage');
+		this.instuctions = document.getElementById('instructions');
+		this.settingsSetup = document.getElementById('settings');
+
+		this.restartButton.addEventListener('click', () => this.startGame());
+		this.howToPlayButton.addEventListener('click', () => this.showInstructions(true));
+		this.instuctions.addEventListener('click', () => this.showInstructions(false));
+		this.settingsButton.addEventListener('click', () => this.settings(true));
+		this.submitButton.addEventListener('click', () => this.settings(false));
+
+		this.colorBoxes = document.querySelectorAll('.color-box');
+		this.colorBoxes.forEach(box => {
+			box.addEventListener('click', () => {
+				const selectedColor = box.getAttribute('data-color');
+
+				if (box.parentElement.parentElement.children[0].textContent.includes('Player 1')) {
+					this.player1Color = selectedColor;
+				} else if (box.parentElement.parentElement.children[0].textContent.includes('Player 2')) {
+					this.player2Color = selectedColor;
+				}
+				console.log(`color 1 event lis: ${this.player1Color}`);
+				console.log(`color 2 event lis: ${this.player2Color}`);
+				this.updateColors();
+			});
+		});
 
 		this.view.bindSideClick(this.handleSideClick);
 		this.view.bindBoardClick(this.handleBoardClick);
 
+		// document.documentElement.style.setProperty('--player1-color', '#ff4500');
+		// document.documentElement.style.setProperty('--player2-color', '#6a5acd');
+		// document.documentElement.style.setProperty('--shadow1', '#ff4500' + '80');
+		// document.documentElement.style.setProperty('--shadow2', '#6a5acd' + '80');
+
+		// Dynamically update the names
+		// document.getElementById('player1Name').textContent = `Change color for ${player1}:`;
+		// document.getElementById('player2Name').textContent = `Change color for ${player2}:`;
+
+		this.updateColors();
 		this.startGame();
-		this.restartButton.addEventListener('click', () => this.startGame());
-		this.howToPlayButton.addEventListener('click', () => this.showInstructions(true));
-		this.instuctions.addEventListener('click', () => this.showInstructions(false));
-		// this.gameEndMessage.addEventListener('click', () => this.startGame());
+
+		// Escape
+		window.addEventListener('keydown', (event) => {
+			if (event.key === 'Escape' && this.settingsSetup.classList.contains('show')) {
+				this.settings(false);
+			}
+			if (event.key === 'Escape' && this.instuctions.classList.contains('show')) {
+				this.showInstructions(false);
+			}
+		});
+	}
+
+	settings(show) {
+		this.settingsSetup.classList.toggle('show', show);
+		// this.updateColors();
+	}
+
+	updateColors() {
+		console.log(`color 1: ${this.player1Color}`);
+		console.log(`color 2: ${this.player2Color}`);
+		document.documentElement.style.setProperty('--player1-color', this.player1Color);
+		document.documentElement.style.setProperty('--player2-color', this.player2Color);
+		document.documentElement.style.setProperty('--shadow1', this.player1Color + '80');
+		document.documentElement.style.setProperty('--shadow2', this.player2Color + '80');
 	}
 
 	startGame() {
-		this.gameEndMessage.classList.remove('show', 'red-wins', 'blue-wins');
+		this.gameEndMessage.classList.remove('show', 'left-wins', 'right-wins');
 		this.model.upd.turn = 2;
 		this.model.upd.cell = null;
 		this.model.upd.isSelected = false;
@@ -370,9 +438,9 @@ class TicTacToeController {
 		if (!this.model.selectRing(index)) {
 			return;
 		}
-		if (this.player_1 === null) {
-			this.player_1 = this.model.upd.turn;
-			this.player_2 = this.model.upd.turn ^ 1;
+		if (this.first === null) {
+			this.first = this.model.upd.turn;
+			console.log('first move from player ', this.first);
 		}
 		this.view.renderSides(this.model.sides);
 	}
@@ -400,9 +468,9 @@ class TicTacToeController {
 		} else {
 			this.view.renderBoard(this.model.board);
 			this.gameEndMessage.innerText = `${this.model.upd.turn ? "BLUE" : "RED"}\nWINS`;
-			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "blue" : "red"}-wins`);
-			console.log(`${this.model.upd.turn ? "blue" : "red"} wins`);
-			this.winner = this.model.upd.turn ? this.player_1 : this.player_2;
+			this.gameEndMessage.classList.add(`${this.model.upd.turn ? "right" : "left"}-wins`);
+			console.log(`${this.model.upd.turn ? "right" : "left"} wins`);
+			// this.winner = this.model.upd.turn ? this.player_1 : this.player_2;
 		}
 		this.gameEndMessage.classList.add('show');
 		this.saveGameResult(roomName, this.winner, this.model.upd.draw)
@@ -428,8 +496,8 @@ class TicTacToeController {
 	}
 
 	saveGameResult(roomName, winner, draw) {
-		console.log(`/tictac/${roomName}/save-result/`);
-		console.log(`player1 ${player1}`);
+		// console.log(`/tictac/${roomName}/save-result/`);
+		// console.log(`player1 ${player1}`);
 		fetch(`/tictac/${roomName}/save-result/`, {
 			method: 'POST',
 			headers: {

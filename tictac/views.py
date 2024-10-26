@@ -30,13 +30,21 @@ def create_room(request):
 		return JsonResponse({'status': 'Bad Request'}, status=400)
 
 def run_game(request, room_name):
-	context = {
-		'room_name': room_name,
-		# 'player1': 'Player1 Name',
-		'player1': room_name.player1,
-		# 'player2': 'Player2 Name'
-	}
-	return render(request, 'index.html', context)
+	try:
+		room = Room.objects.get(name=room_name)
+		player1_name = room.player1.user
+		player2_name = room.player2 if room.player2 else "User 2"
+
+		context = {
+			'room_name': room_name,
+			'player1': player1_name,
+			'player2': player2_name
+		}
+
+		return render(request, 'index.html', context)
+
+	except Room.DoesNotExist:
+		return JsonResponse({'status': 'Bad Request', 'message': 'Room not found'}, status=400)
 
 @csrf_exempt
 def save_game_result(request, room_name):
@@ -59,10 +67,6 @@ def save_game_result(request, room_name):
 			elif game_winner == 'player2': # and room.player2:
 				room.player1.games_played += 1
 				room.save()
-			# 	winner_profile = UserProfile.objects.get(user__username=room.player2)
-			# 	winner_profile.wins += 1
-			# 	winner_profile.games_played += 1
-			# 	winner_profile.save()
 
 			return JsonResponse({'status': 'success', 'message': 'Game result saved'})
 

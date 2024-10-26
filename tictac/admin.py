@@ -10,5 +10,5 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-	list_display = ('name', 'player1', 'player2', 'created_at')
+	list_display = ('name', 'player1', 'player2', 'winner', 'is_draw', 'created_at')
 	show_facets = admin.ShowFacets.ALWAYS

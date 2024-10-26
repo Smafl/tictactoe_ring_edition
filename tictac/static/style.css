@@ -4,19 +4,24 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--cell-size: 100px;
 		--background-color: #282828;
 		--draw-color: #dcdcdc;
 	}
-
 }
 
 @media (prefers-color-scheme: light) {
 	:root {
-		--cell-size: 100px;
 		--background-color: white;
 		--draw-color: #000000;
 	}
+}
+
+:root {
+	--cell-size: 100px;
+	--player1-color:  #ff00ff;
+	--player2-color: #00dcff;
+	--shadow1: #ff00ff80;
+	--shadow2: #00dcff80;
 }
 
 html {
@@ -71,6 +76,20 @@ body {
 	display: none;
 }
 
+.player-name {
+    font-size: 18px;
+    text-align: center;
+    margin-bottom: 10px; /* Space between name and rings */
+}
+
+#player1Name {
+	color: var(--player1-color);
+}
+
+#player2Name {
+	color: var(--player2-color);
+}
+
 /*	RINGS	*/
 .cell .ring:nth-child(1) {
 	--index: 1;
@@ -80,7 +99,6 @@ body {
 	top: var(--offset);
 	left: var(--offset);
 	border-radius: 50%;
-	/* border: 2px solid red; */
 	position: absolute;
 }
 
@@ -107,8 +125,8 @@ body {
 }
 
 [data-color="0"] .ring {
-	border: 4px solid #ff00ff;
-	box-shadow: 0 0 16px 0 #ff00ff80;
+	border: 4px solid var(--player1-color);
+	box-shadow: 0 0 16px 0 var(--shadow1);
 }
 
 [data-color="gray"] .ring {
@@ -117,8 +135,8 @@ body {
 }
 
 [data-color="1"] .ring {
-	border: 4px solid #00dcff;
-	box-shadow: 0 0 16px 0 #0097ff80;
+	border: 4px solid var(--player2-color);
+	box-shadow: 0 0 16px 0 var(--shadow2);
 }
 
 .ring.selected {
@@ -131,14 +149,14 @@ body {
 	box-shadow: 0 0 16px 0 #dcdcdc80;
 }
 
-.ring.red {
-	border: 4px solid #ff00ff;
-	box-shadow: 0 0 16px 0 #ff00ff80;
+.ring.left {
+	border: 4px solid var(--player1-color);
+	box-shadow: 0 0 16px 0 var(--shadow1);
 }
 
-.ring.blue {
-	border: 4px solid #00dcff;
-	box-shadow: 0 0 16px 0 #0097ff80;
+.ring.right {
+	border: 4px solid var(--player2-color);
+	box-shadow: 0 0 16px 0 var(--shadow2);
 }
 
 .board.win .ring:not(.win) {
@@ -155,7 +173,7 @@ body {
 }
 
 #restartButton, #howToPlayButton,
-#secondUserButton, #quitButton {
+#settingsButton, #quitButton {
 	display: block;
 	margin: 0 auto;
 	background-color: inherit;
@@ -169,7 +187,7 @@ body {
 }
 
 #restartButton:hover, #howToPlayButton:hover,
-#secondUserButton:hover, #quitButton:hover {
+#settingsButton:hover, #quitButton:hover {
 	color: lime;
 }
 
@@ -196,7 +214,8 @@ body {
 	font-family: monospace;
 }
 
-#instructions.show {
+#instructions.show,
+#settings.show {
 	display: flex;
 }
 
@@ -219,17 +238,101 @@ body {
 	user-select: none;
 }
 
-.red-wins {
-	color: #ff00ff;
+.left-wins {
+	color: var(--player1-color);
 	-webkit-text-stroke: 1px #000000;
 }
 
-.blue-wins {
-	color: #00dcff;
+.right-wins {
+	color: var(--player2-color);
 	-webkit-text-stroke: 1px #000000;
 }
 
 .draw {
 	color: var(--draw-color);
 	-webkit-text-stroke: 1px #000000;
+}
+
+/* SETTINGS */
+#settings {
+    display: none;
+	background-color: var(--background-color);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.5);
+    text-align: center;
+	font-family: monospace;
+    width: 300px;
+	height: 300px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+	z-index: 1000;
+}
+
+/* Form Styling */
+#settingsForm {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Input and Select Fields Styling */
+#settingsForm label {
+    font-size: 1rem;
+    /* margin-bottom: 8px; */
+    text-align: center;
+    color: lime;
+}
+
+#settingsForm input[type="text"],
+#settingsForm select {
+	background-color: var(--background-color);
+    color: #dcdcdc;
+    border: 1px solid #00dcff;
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+/* Button Styling */
+#submitButton {
+    background-color: lime;
+    color: #282828;
+    border: none;
+    padding: 10px 0;
+    font-size: 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+}
+
+/* Responsive for smaller screens */
+@media (max-width: 400px) {
+    #settings {
+        width: 90%;
+    }
+}
+
+/* COLOR BOXES */
+.color-options {
+    display: flex;
+    gap: 10px; /* Space between boxes */
+    margin-top: 10px; /* Space between label and boxes */
+}
+
+.color-box {
+    width: 20px; /* Set width */
+    height: 20px; /* Set height */
+    border: 2px solid transparent; /* Border for selected state */
+    cursor: pointer; /* Change cursor on hover */
+    border-radius: 4px; /* Slightly rounded corners */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+
+.color-box:hover {
+    border: 2px solid #fff; /* Highlight on hover */
 }

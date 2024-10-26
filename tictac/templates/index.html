@@ -9,6 +9,37 @@
 	<title>Tic Tac Toe</title>
 </head>
 <body>
+
+	<div id="settings" class="settings-setup">
+		<form id="settingsForm">
+			<!-- Player 2 Name -->
+			<div>
+				<label for="player2Name">Add second player</label>
+				<input type="text" id="player2Name" name="player2Name">
+			</div>
+
+		<!-- Player 1 Color -->
+		<div>
+			<div>Player 1 Color:</div>
+			<div class="color-options">
+				<div class="color-box" id="player1ColorBox1" data-color="#ff4500" style="background-color: #FF4500;"></div>
+				<div class="color-box" id="player1ColorBox2" data-color="#ff6347" style="background-color: #FF6347;"></div>
+			</div>
+		</div>
+
+		<!-- Player 2 Color -->
+		<div>
+			<div>Player 2 Color:</div>
+			<div class="color-options">
+				<div class="color-box" id="player2ColorBox1" data-color="#ee82ee" style="background-color: #EE82EE;"></div>
+				<div class="color-box" id="player2ColorBox2" data-color="#6a5acd" style="background-color: #6A5ACD;"></div>
+			</div>
+		</div>
+
+			<button type="submit" id="submitButton">SUBMIT</button>
+		</form>
+	</div>
+
 	<div class="cell template">
 		<div class="ring" data-ring="0"></div>
 		<div class="ring" data-ring="1"></div>
@@ -16,9 +47,13 @@
 	</div>
 
 	<div class="board" id="board">
-		<div class="side" data-color="0"></div>
+		<div class="side" data-color="0">
+			<div class="player-name" id="player1Name">{{ player1 }}</div>
+		</div>
 		<div class="grid" data-color="gray"></div>
-		<div class="side" data-color="1"></div>
+		<div class="side" data-color="1">
+			<div class="player-name" id="player2Name">{{ player2 }}</div>
+		</div>
 	</div>
 
 	<div class="game-end-message" id="gameEndMessage">
@@ -30,8 +65,8 @@
 	</div>
 
 	<div class="button-container">
-		<button id="secondUserButton">ADD SECOND USER</button>
 		<button id="howToPlayButton">HOW TO PLAY</button>
+		<button id="settingsButton">SETTINGS</button>
 		<button id="restartButton">RESTART</button>
 		<button id="quitButton">QUIT</button>
 	</div>
