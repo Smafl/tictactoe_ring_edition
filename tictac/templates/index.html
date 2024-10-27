@@ -9,18 +9,22 @@
 	<title>Tic Tac Toe</title>
 </head>
 <body>
+	<div class="row justifyContent-space-evenly fill margin padding">
+		<div class="player-name column" id="player1Name">{{ player1 }}</div>
+		<div class="player-name column" id="player2Name">{{ player2 }}</div>
+	</div>
 
 	<div id="settings" class="settings-setup">
 		<form id="settingsForm">
 			<!-- Player 2 Name -->
 			<div>
-				<label for="player2Name">Add second player</label>
+				<label class="header" for="player2Name">Add second player</label>
 				<input type="text" id="player2Name" name="player2Name">
 			</div>
 
 		<!-- Player 1 Color -->
 		<div>
-			<div>Player 1 Color:</div>
+			<div  class="header" >Player 1 Color:</div>
 			<div class="color-options">
 				<div class="color-box" id="player1ColorBox1" data-color="#ff4500" style="background-color: #FF4500;"></div>
 				<div class="color-box" id="player1ColorBox2" data-color="#ff6347" style="background-color: #FF6347;"></div>
@@ -29,7 +33,7 @@
 
 		<!-- Player 2 Color -->
 		<div>
-			<div>Player 2 Color:</div>
+			<div class="header">Player 2 Color:</div>
 			<div class="color-options">
 				<div class="color-box" id="player2ColorBox1" data-color="#ee82ee" style="background-color: #EE82EE;"></div>
 				<div class="color-box" id="player2ColorBox2" data-color="#6a5acd" style="background-color: #6A5ACD;"></div>
@@ -48,11 +52,9 @@
 
 	<div class="board" id="board">
 		<div class="side" data-color="0">
-			<div class="player-name" id="player1Name">{{ player1 }}</div>
 		</div>
 		<div class="grid" data-color="gray"></div>
 		<div class="side" data-color="1">
-			<div class="player-name" id="player2Name">{{ player2 }}</div>
 		</div>
 	</div>
 

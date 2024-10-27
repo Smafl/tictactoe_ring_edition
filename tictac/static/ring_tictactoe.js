@@ -333,6 +333,12 @@ class TicTacToeView {
 	}
 }
 
+function getCssVariable(variableName) {
+    // Use getComputedStyle to get the root element's style
+    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+}
+
+
 class TicTacToeController {
 	// capture user actions (like clicks), update the model, and tell the view to refresh
 	// model and view should communicate via controller
@@ -342,8 +348,21 @@ class TicTacToeController {
 		this.view = view;
 		this.winner = null;
 		this.first = null;
-		this.player1Color = '#ff00ff';
-		this.player2Color = '#00dcff';
+		// this.player1Color = '#ff00ff';
+		// this.player2Color = '#00dcff';
+
+		// Example: Get the value of --player1-color
+
+		this.player1Color = localStorage.getItem("player1Color");
+		if (!this.player1Color)
+		{
+			this.player1Color = getCssVariable('--player1-color');
+		}
+		this.player2Color  = localStorage.getItem("player2Color");
+		if(!this.player2Color){
+			this.player2Color = getCssVariable('--player2-color');
+
+		}
 
 		this.restartButton = document.getElementById('restartButton');
 		this.howToPlayButton = document.getElementById('howToPlayButton');
@@ -402,6 +421,9 @@ class TicTacToeController {
 				this.showInstructions(false);
 			}
 		});
+
+		//window.addEventListener("DOMContentLoaded", this.loadPlayerColors);
+
 	}
 
 	settings(show) {
@@ -409,9 +431,29 @@ class TicTacToeController {
 		// this.updateColors();
 	}
 
+	// Function to check for saved colors in local storage on page load
+	 loadPlayerColors() {
+    	// Retrieve colors from local storage
+		const savedPlayer1Color = localStorage.getItem("player1Color");
+		const savedPlayer2Color = localStorage.getItem("player2Color");
+
+		// If colors are saved, set them as CSS variables
+		if (savedPlayer1Color) {
+			document.documentElement.style.setProperty("--player1-color", savedPlayer1Color);
+		}
+		if (savedPlayer2Color) {
+			document.documentElement.style.setProperty("--player2-color", savedPlayer2Color);
+		}
+	}
+
 	updateColors() {
 		console.log(`color 1: ${this.player1Color}`);
 		console.log(`color 2: ${this.player2Color}`);
+
+
+		localStorage.setItem("player1Color", this.player1Color);
+		localStorage.setItem("player2Color", this.player2Color);
+
 		document.documentElement.style.setProperty('--player1-color', this.player1Color);
 		document.documentElement.style.setProperty('--player2-color', this.player2Color);
 		document.documentElement.style.setProperty('--shadow1', this.player1Color + '80');

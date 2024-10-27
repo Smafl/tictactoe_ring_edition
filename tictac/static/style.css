@@ -6,6 +6,7 @@
 	:root {
 		--background-color: #282828;
 		--draw-color: #dcdcdc;
+		color: white;
 	}
 }
 
@@ -13,6 +14,7 @@
 	:root {
 		--background-color: white;
 		--draw-color: #000000;
+		color: #000000;
 	}
 }
 
@@ -37,6 +39,7 @@ body {
 	flex-wrap: wrap;
 	height: 100vh;
 	margin: 0;
+	font-family: monospace;
 }
 
 /*	BOARD	*/
@@ -47,10 +50,49 @@ body {
 	justify-content: center;
 }
 
+.row{
+	display: flex;
+	flex-direction: row;
+	row-gap: 1em;
+}
+
+.column{
+	display: flex;
+	flex-direction: column;
+	gap: 0.5em;
+}
+
+.fill{
+	width: -webkit-fill-available;
+	width: -moz-available;
+	width: fill-available;
+}
+
+.margin{
+	margin: 1em;
+}
+
+.padding{
+	padding: 1em;
+}
+
+.justifyContent-space-around{
+	justify-content: space-around;
+}
+
+.justifyContent-space-evenly{
+	justify-content: space-evenly;
+}
+
+.header{
+	font-size: large;
+}
+
 .side {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+    align-items: center;
 }
 
 .grid {
@@ -230,9 +272,7 @@ body {
     align-items: center;
 	align-content: center;
 	text-align: center;
-    color: #000000;
     font-size: 1.5rem;
-	font-family: monospace;
 	background-color: var(--background-color);
 	cursor: default;
 	user-select: none;
