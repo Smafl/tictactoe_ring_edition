@@ -348,28 +348,26 @@ class TicTacToeController {
 		this.view = view;
 		this.winner = null;
 		this.first = null;
-		// this.player1Color = '#ff00ff';
-		// this.player2Color = '#00dcff';
+		this.player1Color = '#ff00ff';
+		this.player2Color = '#00dcff';
 
 		// Example: Get the value of --player1-color
 
-		this.player1Color = localStorage.getItem("player1Color");
-		if (!this.player1Color)
-		{
-			this.player1Color = getCssVariable('--player1-color');
-		}
-		this.player2Color  = localStorage.getItem("player2Color");
-		if(!this.player2Color){
-			this.player2Color = getCssVariable('--player2-color');
+		// this.player1Color = localStorage.getItem("player1Color");
+		// if (!this.player1Color)
+		// {
+		// 	this.player1Color = getCssVariable('--player1-color');
+		// }
+		// this.player2Color  = localStorage.getItem("player2Color");
+		// if(!this.player2Color){
+		// 	this.player2Color = getCssVariable('--player2-color');
 
-		}
+		// }
 
 		this.restartButton = document.getElementById('restartButton');
 		this.howToPlayButton = document.getElementById('howToPlayButton');
 		this.settingsButton = document.getElementById('settingsButton');
 		this.submitButton = document.getElementById('submitButton');
-
-		this.settingsForm = document.getElementById('settingsForm');
 
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.instuctions = document.getElementById('instructions');
@@ -451,8 +449,8 @@ class TicTacToeController {
 		console.log(`color 2: ${this.player2Color}`);
 
 
-		localStorage.setItem("player1Color", this.player1Color);
-		localStorage.setItem("player2Color", this.player2Color);
+		// localStorage.setItem("player1Color", this.player1Color);
+		// localStorage.setItem("player2Color", this.player2Color);
 
 		document.documentElement.style.setProperty('--player1-color', this.player1Color);
 		document.documentElement.style.setProperty('--player2-color', this.player2Color);
