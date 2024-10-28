@@ -215,7 +215,8 @@ body {
 }
 
 #restartButton, #howToPlayButton,
-#settingsButton, #quitButton {
+#settingsButton, #quitButton,
+#submitButton {
 	display: block;
 	margin: 0 auto;
 	background-color: inherit;
@@ -229,7 +230,8 @@ body {
 }
 
 #restartButton:hover, #howToPlayButton:hover,
-#settingsButton:hover, #quitButton:hover {
+#settingsButton:hover, #quitButton:hover,
+#submitButton:hover {
 	color: lime;
 }
 
@@ -303,7 +305,7 @@ body {
     text-align: center;
 	font-family: monospace;
     width: 300px;
-	height: 300px;
+	height: 400px;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -311,43 +313,21 @@ body {
 	z-index: 1000;
 }
 
-/* Form Styling */
-#settingsForm {
-    display: flex;
-    flex-direction: column;
-}
-
 /* Input and Select Fields Styling */
 #settingsForm label {
     font-size: 1rem;
-    /* margin-bottom: 8px; */
     text-align: center;
-    color: lime;
 }
 
 #settingsForm input[type="text"],
 #settingsForm select {
 	background-color: var(--background-color);
-    color: #dcdcdc;
-    border: 1px solid #00dcff;
+    border: 1px solid lime;
     padding: 10px;
     font-size: 1rem;
     border-radius: 6px;
     margin-bottom: 15px;
     width: 100%;
-}
-
-/* Button Styling */
-#submitButton {
-    background-color: lime;
-    color: #282828;
-    border: none;
-    padding: 10px 0;
-    font-size: 1.2rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-top: 15px;
 }
 
 /* Responsive for smaller screens */
@@ -365,14 +345,14 @@ body {
 }
 
 .color-box {
-    width: 20px; /* Set width */
-    height: 20px; /* Set height */
-    border: 2px solid transparent; /* Border for selected state */
-    cursor: pointer; /* Change cursor on hover */
-    border-radius: 4px; /* Slightly rounded corners */
+    width: 20px;
+    height: 20px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    border-radius: 4px;
     transition: border-color 0.3s; /* Smooth transition for border color */
 }
 
 .color-box:hover {
-    border: 2px solid #fff; /* Highlight on hover */
+    border: 2px solid lime;
 }

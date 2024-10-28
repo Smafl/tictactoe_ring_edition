@@ -334,10 +334,8 @@ class TicTacToeView {
 }
 
 function getCssVariable(variableName) {
-    // Use getComputedStyle to get the root element's style
-    return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
+	return getComputedStyle(document.documentElement).getPropertyValue(variableName).trim();
 }
-
 
 class TicTacToeController {
 	// capture user actions (like clicks), update the model, and tell the view to refresh
@@ -348,26 +346,22 @@ class TicTacToeController {
 		this.view = view;
 		this.winner = null;
 		this.first = null;
-		this.player1Color = '#ff00ff';
-		this.player2Color = '#00dcff';
 
-		// Example: Get the value of --player1-color
-
-		// this.player1Color = localStorage.getItem("player1Color");
-		// if (!this.player1Color)
-		// {
-		// 	this.player1Color = getCssVariable('--player1-color');
-		// }
-		// this.player2Color  = localStorage.getItem("player2Color");
-		// if(!this.player2Color){
-		// 	this.player2Color = getCssVariable('--player2-color');
-
-		// }
+		this.player1Color = localStorage.getItem("player1Color");
+		if (!this.player1Color) {
+			this.player1Color = getCssVariable('--player1-color');
+		}
+		this.player2Color = localStorage.getItem("player2Color");
+		if (!this.player2Color) {
+			this.player2Color = getCssVariable('--player2-color');
+		}
 
 		this.restartButton = document.getElementById('restartButton');
 		this.howToPlayButton = document.getElementById('howToPlayButton');
 		this.settingsButton = document.getElementById('settingsButton');
 		this.submitButton = document.getElementById('submitButton');
+
+		this.settingsForm = document.getElementById('settingsForm');
 
 		this.gameEndMessage = document.getElementById('gameEndMessage');
 		this.instuctions = document.getElementById('instructions');
@@ -384,13 +378,13 @@ class TicTacToeController {
 			box.addEventListener('click', () => {
 				const selectedColor = box.getAttribute('data-color');
 
-				if (box.parentElement.parentElement.children[0].textContent.includes('Player 1')) {
+				const playerNameSpan = box.closest('.color-options').previousElementSibling.querySelector('span');
+
+				if (playerNameSpan.id === 'player1-name') {
 					this.player1Color = selectedColor;
-				} else if (box.parentElement.parentElement.children[0].textContent.includes('Player 2')) {
+				} else if (playerNameSpan.id === 'player2-name') {
 					this.player2Color = selectedColor;
 				}
-				console.log(`color 1 event lis: ${this.player1Color}`);
-				console.log(`color 2 event lis: ${this.player2Color}`);
 				this.updateColors();
 			});
 		});
@@ -398,14 +392,9 @@ class TicTacToeController {
 		this.view.bindSideClick(this.handleSideClick);
 		this.view.bindBoardClick(this.handleBoardClick);
 
-		// document.documentElement.style.setProperty('--player1-color', '#ff4500');
-		// document.documentElement.style.setProperty('--player2-color', '#6a5acd');
-		// document.documentElement.style.setProperty('--shadow1', '#ff4500' + '80');
-		// document.documentElement.style.setProperty('--shadow2', '#6a5acd' + '80');
-
 		// Dynamically update the names
-		// document.getElementById('player1Name').textContent = `Change color for ${player1}:`;
-		// document.getElementById('player2Name').textContent = `Change color for ${player2}:`;
+		document.getElementById("player1-name").textContent = player1;
+		document.getElementById("player2-name").textContent = player2;
 
 		this.updateColors();
 		this.startGame();
@@ -420,7 +409,7 @@ class TicTacToeController {
 			}
 		});
 
-		//window.addEventListener("DOMContentLoaded", this.loadPlayerColors);
+		window.addEventListener("DOMContentLoaded", this.loadPlayerColors);
 
 	}
 
@@ -430,8 +419,8 @@ class TicTacToeController {
 	}
 
 	// Function to check for saved colors in local storage on page load
-	 loadPlayerColors() {
-    	// Retrieve colors from local storage
+	loadPlayerColors() {
+		// Retrieve colors from local storage
 		const savedPlayer1Color = localStorage.getItem("player1Color");
 		const savedPlayer2Color = localStorage.getItem("player2Color");
 
@@ -445,12 +434,8 @@ class TicTacToeController {
 	}
 
 	updateColors() {
-		console.log(`color 1: ${this.player1Color}`);
-		console.log(`color 2: ${this.player2Color}`);
-
-
-		// localStorage.setItem("player1Color", this.player1Color);
-		// localStorage.setItem("player2Color", this.player2Color);
+		localStorage.setItem("player1Color", this.player1Color);
+		localStorage.setItem("player2Color", this.player2Color);
 
 		document.documentElement.style.setProperty('--player1-color', this.player1Color);
 		document.documentElement.style.setProperty('--player2-color', this.player2Color);
