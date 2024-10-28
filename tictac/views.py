@@ -41,7 +41,7 @@ def run_game(request, room_name):
 			'player2': player2_name
 		}
 
-		return render(request, 'index.html', context)
+		return render(request, 'index_tictac.html', context)
 
 	except Room.DoesNotExist:
 		return JsonResponse({'status': 'Bad Request', 'message': 'Room not found'}, status=400)
