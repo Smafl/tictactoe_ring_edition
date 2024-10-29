@@ -157,6 +157,10 @@ class TicTacToeModel {
 		if (isEmpty == -1) {
 			return false;
 		}
+		// console.log("index is: ", index);
+		// console.log("is selected ring: ", this.upd.isSelected);
+		if (this.upd.isSelected == false)	// add this!!
+			return false;
 		for (let ring = 0; ring != 3; ring++) {
 			if (this.board[index][ring] != null) {
 				if (this.upd.ringSize > ring) {
@@ -321,12 +325,6 @@ class TicTacToeView {
 						ring.classList.remove('used');
 						ring.classList.remove('selected');
 					}
-					// Apply the player colors to the sides
-					// if (i === 0) {
-					// 	ring.style.backgroundColor = this.controller.player1Color;
-					// } else if (i === 1) {
-					// 	ring.style.backgroundColor = this.controller.player2Color;
-					// }
 				});
 			});
 		}
@@ -415,7 +413,7 @@ class TicTacToeController {
 
 	settings(show) {
 		this.settingsSetup.classList.toggle('show', show);
-		// this.updateColors();
+		this.updateColors();
 	}
 
 	// Function to check for saved colors in local storage on page load
@@ -461,21 +459,27 @@ class TicTacToeController {
 
 	handleSideClick = index => {
 		if (!this.model.selectRing(index)) {
+			// console.log("side click: return");
 			return;
 		}
+		// console.log("side click");
 		if (this.first === null) {
 			this.first = this.model.upd.turn;
-			console.log('first move from player ', this.first);
+			// console.log('first move from player ', this.first);
 		}
 		this.view.renderSides(this.model.sides);
 	}
 
 	handleBoardClick = index => {
 		if (!this.model.placeRing(index)) {
+			// console.log("board click: return");
 			return;
 		}
-		if (this.model.upd.turn === 2)
+		// console.log("board click");
+		if (this.model.upd.turn === 2) {
+			// console.log("board click, turn 2: return")	;
 			return;
+		}
 		this.view.renderBoard(this.model.board);
 		this.view.renderSides(this.model.sides);
 		if (this.model.isEnd()) {
@@ -483,6 +487,7 @@ class TicTacToeController {
 		}
 		else {
 			this.model.switchTurn();
+			// console.log("switch turn, turn is: ", this.model.upd.turn);
 		}
 	}
 
